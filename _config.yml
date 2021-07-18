@@ -4,7 +4,6 @@ highlighter:      pygments
 
 # Permalinks
 permalink:        pretty
-# relative_permalinks: true
 
 # Setup
 title:            JohnTGZ
@@ -19,18 +18,18 @@ author:
 
 paginate:         5
 
-# Custom vars
-version:          2.1.0
-
-mysites:
-  github: https://github.com/JohnTGZ
-  linkedin: https://www.linkedin.com/in/john-tan-guan-zhong-681815156
-
 github:     
   plugins:
   - jekyll-paginate
   - jekyll-gist
   - redcarpet
+
+# Custom vars
+
+mysites:
+  github: https://github.com/JohnTGZ
+  linkedin: https://www.linkedin.com/in/john-tan-guan-zhong-681815156
+
 
 
 excerpt_separator: "<!-- excerpt-end -->"
