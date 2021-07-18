@@ -7,15 +7,15 @@ permalink:        pretty
 # relative_permalinks: true
 
 # Setup
-title:            Hyde
+title:            JohnTGZ
 tagline:          'A Jekyll theme'
-description:      'A brazen two-column <a href="http://jekyllrb.com" target="_blank">Jekyll</a> theme that pairs a prominent sidebar with uncomplicated content. Made by <a href="https://twitter.com/mdo" target="_blank">@mdo</a>.'
+description:      'A Personal Blog where I ramble about and dabble in robotics and philosophical nonsense.'
 url:              http://johntgz.github.io
 baseurl:          /
 
 author:
-  name:           'Mark Otto'
-  url:            https://twitter.com/mdo
+  name:           'John Tan'
+  url:            https://github.com/JohnTGZ
 
 paginate:         5
 
@@ -28,3 +28,6 @@ github:
   - jekyll-paginate
   - jekyll-gist
   - redcarpet
+
+
+excerpt_separator: "<!-- excerpt-end -->"

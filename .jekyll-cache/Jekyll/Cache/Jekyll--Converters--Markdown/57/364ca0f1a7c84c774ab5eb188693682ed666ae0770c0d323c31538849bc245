@@ -1,0 +1,47 @@
+I"
+<h1 id="introduction">Introduction</h1>
+
+<p>Taking a look at ROS1’s navigation stack, the global planner’s default implementation is either A* or Dijkstra, both of which are classic path planning algorithms that work for navigating simple and structured environments. However, both algorithms fall short when it comes to achieving the true shortest possible path between 2 points. This is where Theta* shines as an any-angle path planner. Theta* is an algorithm built upon A* that relies on line-of-sight to reduce the distance path optimality.</p>
+
+<p>In this brief foray into any-angle path planning, our focus will be on more intuitive visualizations and the comparison of their performance when implemented in the ROS navigation stack. This allows us to make judgements about their strengths and weaknesses in various scenarios. We shall leave aside the more complex sister algorithm, Angle Propagation Theta<em>, as its time complexity is only marginally better than Theta</em> yet the paths are less optimal. Here, the graph search problem is represented as a 2D grid map, or a 2D cost map as in the ROS navigation stack.</p>
+
+<h1 id="why-not-a">Why not A*?</h1>
+
+<p>The A* planner search is guided by the f-cost heuristic. The f-cost of a cell S is a combination of its g-cost and h-cost:</p>
+
+<ol>
+  <li>g-cost: the shortest distance found thus far from the start cell to S</li>
+  <li>h-cost: An estimate of the distance from S to the goal cell.</li>
+</ol>
+
+<p>By means of a sorted open list, the planner will always traverse a cell that minimises the f-cost, and update the costs of existing traversed cells should it find a shorter path in the process.</p>
+
+<pre><code>computeShortestPath(s_start, s_goal):
+    g_cost[s_start] = 0
+    parent[s_start] = s_start
+    openlist = []
+    openlist.insert(s_start, g_cost[s_start] + h_cost[s_start])
+    closedlist = []
+    while openlist NOT empty:
+        s = openlist.pop()
+        if s == s_goal:
+            return “path found”
+        closedlist.push(s)
+        for s' IN neighbor(s):
+            if s' NOT IN closedlist:
+                if s' NOT IN openlist:
+                    g_cost[s'] = infinity
+                    parent[s'] = NULL
+                	updateVertex(s, s')
+    return “no path found”
+    
+updateVertex(s, s'):
+    if ( g_cost[s] + cost(s, s') &lt; g_cost[s'] ):
+        g_cost[s'] = g_cost[s] + cost(s, s')
+        parent[s'] = s
+        if s' IN openlist:
+            openlist.remove(s')
+        openlist.insert(s', g_cost[s'] + h_cost[s'])
+</code></pre>
+<p>Algorithm 1: The classic A*</p>
+:ET

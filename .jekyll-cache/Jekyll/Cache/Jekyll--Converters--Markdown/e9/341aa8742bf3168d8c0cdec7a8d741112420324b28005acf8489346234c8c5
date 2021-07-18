@@ -1,0 +1,63 @@
+I"�<h1 id="introduction">Introduction</h1>
+
+<p>Taking a look at ROS1’s navigation stack, the global planner’s default implementation is either A* or Dijkstra, both of which are classic path planning algorithms that work for navigating simple and structured environments. However, both algorithms fall short when it comes to achieving the true shortest possible path between 2 points. This is where Theta* shines as an any-angle path planner. Theta* is an algorithm built upon A* that relies on line-of-sight to reduce the distance path optimality.</p>
+
+<p>In this brief foray into any-angle path planning, our focus will be on more intuitive visualizations and the comparison of their performance when implemented in the ROS navigation stack. This allows us to make judgements about their strengths and weaknesses in various scenarios. We shall leave aside the more complex sister algorithm, Angle Propagation Theta<em>, as its time complexity is only marginally better than Theta</em> yet the paths are less optimal. Here, the graph search problem is represented as a 2D grid map, or a 2D cost map as in the ROS navigation stack.</p>
+
+<h1 id="why-not-a">Why not A*?</h1>
+
+<p>The A* planner search is guided by the f-cost heuristic. The f-cost of a cell S is a combination of its g-cost and h-cost:</p>
+
+<ol>
+  <li>g-cost: the shortest distance found thus far from the start cell to S</li>
+  <li>h-cost: An estimate of the distance from S to the goal cell.</li>
+</ol>
+
+<p>By means of a sorted open list, the planner will always traverse a cell that minimises the f-cost, and update the costs of existing traversed cells should it find a shorter path in the process.</p>
+
+<pre><code>computeShortestPath(s_start, s_goal):
+    g_cost[s_start] = 0
+    parent[s_start] = s_start
+    openlist = []
+    openlist.insert(s_start, g_cost[s_start] + h_cost[s_start])
+    closedlist = []
+    while openlist NOT empty:
+        s = openlist.pop()
+        if s == s_goal:
+            return “path found”
+        closedlist.push(s)
+        for s' IN neighbor(s):
+            if s' NOT IN closedlist:
+                if s' NOT IN openlist:
+                    g_cost[s'] = infinity
+                    parent[s'] = NULL
+                	updateVertex(s, s')
+    return “no path found”
+    
+updateVertex(s, s'):
+    if ( g_cost[s] + cost(s, s') &lt; g_cost[s'] ):
+        g_cost[s'] = g_cost[s] + cost(s, s')
+        parent[s'] = s
+        if s' IN openlist:
+            openlist.remove(s')
+        openlist.insert(s', g_cost[s'] + h_cost[s'])
+</code></pre>
+<p>Algorithm 1: The classic A*</p>
+
+<p>However, as a grid-based planner, A* faces a serious limitation by restricting its search to discrete headings of 45 degrees.</p>
+
+<p>Figure 1: The 8-way connected search direction of A*. Red points is the current vertex and orange points are vertices to be expanded</p>
+
+<p>The true shortest path usually does not adhere to grid lines and can travel along arbitrary headings. This can lead to suboptimal paths for grid based planners like A* as the planner cannot form paths with arbitrary angles.</p>
+
+<p>Figure 2: Grid path versus true shortest path [1]</p>
+
+<p>We can observe these effects by implementing the classic A* algorithm in ROS, where the paths tend to be jagged, constrained to discrete headings of 45 degrees, resulting in paths that are much longer than necessary. The jagged paths are the result of the A* planner following the geometric constraints of the obstacles in the cost map. Figure 3 shows the green path formed by A* to be suboptimal and probably not feasible without an appropriate local planner. This is in comparison to the yellow path which is much closer to the true shortest path. Note: The paths have taken into account the inflation radius of the obstacles.</p>
+
+<p>Figure 3: Blue path is formed by A* and the yellow path is a possible true shortest path</p>
+
+<p>In order to optimize the length of the path, we can add a post processing step to A* that does not require the original algorithm to be modified. This is known as the A* Post-smoothing algorithm [2], which checks for a valid line-of-sight (refer to Appendix A) between the vertices in the existing planned path. Therefore reducing the amount of unnecessary heading changes and also bringing the path closer to an optimal solution.</p>
+
+<pre><code>
+</code></pre>
+:ET

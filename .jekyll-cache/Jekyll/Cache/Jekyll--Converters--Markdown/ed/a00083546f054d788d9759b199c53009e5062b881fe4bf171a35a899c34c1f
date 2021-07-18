@@ -1,0 +1,18 @@
+I"�<h1 id="introduction">Introduction</h1>
+
+<p>Taking a look at ROS1’s navigation stack, the global planner’s default implementation is either A* or Dijkstra, both of which are classic path planning algorithms that work for navigating simple and structured environments. However, both algorithms fall short when it comes to achieving the true shortest possible path between 2 points. This is where Theta* shines as an any-angle path planner. Theta* is an algorithm built upon A* that relies on line-of-sight to reduce the distance path optimality.</p>
+
+<p>In this brief foray into any-angle path planning, our focus will be on more intuitive visualizations and the comparison of their performance when implemented in the ROS navigation stack. This allows us to make judgements about their strengths and weaknesses in various scenarios. We shall leave aside the more complex sister algorithm, Angle Propagation Theta<em>, as its time complexity is only marginally better than Theta</em> yet the paths are less optimal. Here, the graph search problem is represented as a 2D grid map, or a 2D cost map as in the ROS navigation stack.</p>
+
+<p><a href="http://jekyllrb.com">Jekyll</a> is a static site generator, an open-source tool for creating simple yet powerful websites of all shapes and sizes.</p>
+
+<p>From <a href="https://github.com/mojombo/jekyll/blob/master/README.markdown">the project’s readme</a>:</p>
+
+<blockquote>
+  <p>Jekyll is a simple, blog aware, static site generator. It takes a template directory […] and spits out a complete, static website suitable for serving with Apache or your favorite web server. This is also the engine behind GitHub Pages, which you can use to host your project’s page or blog right here from GitHub.</p>
+</blockquote>
+
+<p>It’s an immensely useful tool and one we encourage you to use here with Hyde.</p>
+
+<p>Find out more by <a href="https://github.com/mojombo/jekyll">visiting the project on GitHub</a>.</p>
+:ET
