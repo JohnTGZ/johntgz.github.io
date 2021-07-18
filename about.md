@@ -12,14 +12,23 @@ title: About Me
 ## Career
 
 ### Globotix
+Robotics Software Engineer
 
 ### Movel AI
+Robotics Software Engineer
 
 ## Internships
 
-### Iron Drone
+### 南京旭拟仿真技术有限公司 - Shanghai City, China
+Mechanical Engineering Intern
 
-### Iron Drone
+### Iron Drone - Tel Aviv, Israel
+Mechanical Engineering Intern
+
+### Aural-Aid
+Product Development Intern
+
+
 
 <!-- In the novel, *The Strange Case of Dr. Jeykll and Mr. Hyde*, Mr. Poole is Dr. Jekyll's virtuous and loyal butler. Similarly, Poole is an upstanding and effective butler that helps you build Jekyll themes. It's made by [@mdo](https://twitter.com/mdo).
 
