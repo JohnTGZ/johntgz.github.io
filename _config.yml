@@ -22,8 +22,11 @@ paginate:         5
 # Custom vars
 version:          2.1.0
 
-github:
-  repo:           https://github.com/poole/hyde
+mysites:
+  github: https://github.com/JohnTGZ
+  linkedin: https://www.linkedin.com/in/john-tan-guan-zhong-681815156
+
+github:     
   plugins:
   - jekyll-paginate
   - jekyll-gist
