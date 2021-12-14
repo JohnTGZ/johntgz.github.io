@@ -53,18 +53,20 @@ Algorithm 1: The classic A*
 
 However, as a grid-based planner, A* faces a serious limitation by restricting its search to discrete headings of 45 degrees.
 
+![Figure 1](../public/assets/2020-08-31-theta_star/8waycon.png "The 8-way connected search direction of A*")
 
 Figure 1: The 8-way connected search direction of A*. Red points is the current vertex and orange points are vertices to be expanded
 
 The true shortest path usually does not adhere to grid lines and can travel along arbitrary headings. This can lead to suboptimal paths for grid based planners like A* as the planner cannot form paths with arbitrary angles.
 
+![Figure 2](../public/assets/2020-08-31-theta_star/gridpathvsshortpath.png "Grid path versus true shortest path")
+
 Figure 2: Grid path versus true shortest path [1]
 
 We can observe these effects by implementing the classic A* algorithm in ROS, where the paths tend to be jagged, constrained to discrete headings of 45 degrees, resulting in paths that are much longer than necessary. The jagged paths are the result of the A* planner following the geometric constraints of the obstacles in the cost map. Figure 3 shows the green path formed by A* to be suboptimal and probably not feasible without an appropriate local planner. This is in comparison to the yellow path which is much closer to the true shortest path. Note: The paths have taken into account the inflation radius of the obstacles.
 
-
+![Figure 3](../public/assets/2020-08-31-theta_star/astarps_diagram-1.png "Blue path is formed by A* and the yellow path is a possible true shortest path")
 Figure 3: Blue path is formed by A* and the yellow path is a possible true shortest path
-
 
 In order to optimize the length of the path, we can add a post processing step to A* that does not require the original algorithm to be modified. This is known as the A* Post-smoothing algorithm [2], which checks for a valid line-of-sight (refer to Appendix A) between the vertices in the existing planned path. Therefore reducing the amount of unnecessary heading changes and also bringing the path closer to an optimal solution.
 
@@ -88,11 +90,12 @@ Algorithm 2: A* Post-Smoothing
 
 We can observe in Figure 4 that although the green path formed by A* Post-smoothing still has some unnecessary heading changes and waypoints, it is more optimal than the original A* path in Figure 3.
 
+AStarPS-1.png
 Figure 4: Green path formed by A* Post-Smoothing
-
 
 The post-smoothing for A* can reduce path lengths to a certain extent, limited by A*'s inability to consider paths that could potentially be shorter. This is illustrated in Figure 5 where A*'s discrete search direction does not allow it to change the side of an obstacle that it travels. Post-smoothing merely checks for the line-of-sight between existing points in the path.
 
+astarvsshortestpath.png
 Figure 5: A* Post-Smoothing versus true shortest path [1]
 
 # Enter Theta*
@@ -106,7 +109,7 @@ Let's bring our attention to Figure 6. Here, the planner is expanding vertex B3.
 
 In this scenario, Theta* is able to consider both paths 1 and 2, whereas A* will only consider path 1. This is because Theta* checks for line-of-sight between the vertices and their parents during the expansion phase, whereas A* Post-Smoothing only checks for line-of-sight after it has already formed a path.
 
-
+thetaexpansion1.png
 Figure 6: Scenario 1 of paths 1 and 2 considered by Theta*
 
 
@@ -143,7 +146,7 @@ IF there is NO line-of-sight from the parent of Vertex S to its neighbor Vertex 
 
 Taking another example from Figure 7. There is no line-of-sight from the parent of Vertex S (which is S_start) towards S'. Therefore, Theta* will not consider path 1,deeming path 2 the shortest possible path towards the goal.
 
-
+thetaexpansion2.png
 Figure 7: Scenario 2 of paths 1 and 2 considered by Theta*
 
 An implementation of Theta* in ROS (Figure 8) shows that there are lesser unnecessary heading changes and that the path obtained is much closer to the true shortest path.

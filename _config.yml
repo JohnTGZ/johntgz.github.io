@@ -8,7 +8,7 @@ permalink:        pretty
 # Setup
 title:            JohnTGZ
 tagline:          'A Jekyll theme'
-description:      'A Personal Blog where I ramble about and dabble in robotics and philosophical nonsense.'
+description:      'A Personal Blog where I ramble about robotics and life.'
 url:              http://johntgz.github.io
 baseurl:          /
 
