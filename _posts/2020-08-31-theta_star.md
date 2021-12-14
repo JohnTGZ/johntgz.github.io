@@ -3,13 +3,11 @@ layout: post
 title: "Theta*: Simple Any-Angle Algorithm based on A*"
 ---
 
-
 # Introduction
 
 Taking a look at ROS1's navigation stack, the global planner's default implementation is either A* or Dijkstra, both of which are classic path planning algorithms that work for navigating simple and structured environments. However, both algorithms fall short when it comes to achieving the true shortest possible path between 2 points. This is where Theta* shines as an any-angle path planner. Theta* is an algorithm built upon A* that relies on line-of-sight to reduce the distance path optimality.
 
 In this brief foray into any-angle path planning, our focus will be on more intuitive visualizations and the comparison of their performance when implemented in the ROS navigation stack. This allows us to make judgements about their strengths and weaknesses in various scenarios. We shall leave aside the more complex sister algorithm, Angle Propagation Theta*, as its time complexity is only marginally better than Theta* yet the paths are less optimal. Here, the graph search problem is represented as a 2D grid map, or a 2D cost map as in the ROS navigation stack.
-
 
 # Why not A*?
 
@@ -65,7 +63,7 @@ __Figure 2: Grid path versus true shortest path [1]__
 
 We can observe these effects by implementing the classic A* algorithm in ROS, where the paths tend to be jagged, constrained to discrete headings of 45 degrees, resulting in paths that are much longer than necessary. The jagged paths are the result of the A* planner following the geometric constraints of the obstacles in the cost map. Figure 3 shows the green path formed by A* to be suboptimal and probably not feasible without an appropriate local planner. This is in comparison to the yellow path which is much closer to the true shortest path. Note: The paths have taken into account the inflation radius of the obstacles.
 
-<img src="../public/assets/2020-08-31-theta_star/astarps_diagram-1.png" alt="Blue path is formed by A* and the yellow path is a possible true shortest path" width="600"/>
+<img src="/public/assets/2020-08-31-theta_star/astarps_diagram-1.png" alt="Blue path is formed by A* and the yellow path is a possible true shortest path" width="600"/>
 
 __Figure 3: Blue path is formed by A* and the yellow path is a possible true shortest path__
 
@@ -91,14 +89,14 @@ Algorithm 2: A* Post-Smoothing
 
 We can observe in Figure 4 that although the green path formed by A* Post-smoothing still has some unnecessary heading changes and waypoints, it is more optimal than the original A* path in Figure 3.
 
-<img src="../public/assets/2020-08-31-theta_star/AStarPS-1.png" alt="Green path formed by A* Post-Smoothing" width="350"/>
+<img src="/public/assets/2020-08-31-theta_star/AStarPS-1.png" alt="Green path formed by A* Post-Smoothing" width="350"/>
 
 __Figure 4: Green path formed by A* Post-Smoothing__
 
 The post-smoothing for A* can reduce path lengths to a certain extent, limited by A*'s inability to consider paths that could potentially be shorter. This is illustrated in Figure 5 where A*'s discrete search direction does not allow it to change the side of an obstacle that it travels. Post-smoothing merely checks for the line-of-sight between existing points in the path.
 
 
-<img src="../public/assets/2020-08-31-theta_star/astarvsshortestpath.png" alt="A* Post-Smoothing versus true shortest path" width="350"/>
+<img src="/public/assets/2020-08-31-theta_star/astarvsshortestpath.png" alt="A* Post-Smoothing versus true shortest path" width="350"/>
 
 __Figure 5: A* Post-Smoothing versus true shortest path [1]__
 
@@ -113,7 +111,7 @@ Let's bring our attention to Figure 6. Here, the planner is expanding vertex B3.
 
 In this scenario, Theta* is able to consider both paths 1 and 2, whereas A* will only consider path 1. This is because Theta* checks for line-of-sight between the vertices and their parents during the expansion phase, whereas A* Post-Smoothing only checks for line-of-sight after it has already formed a path.
 
-<img src="../public/assets/2020-08-31-theta_star/thetaexpansion1.png" alt="A* Post-Smoothing versus true shortest path" width="450"/>
+<img src="/public/assets/2020-08-31-theta_star/thetaexpansion1.png" alt="A* Post-Smoothing versus true shortest path" width="450"/>
 
 __Figure 6: Scenario 1 of paths 1 and 2 considered by Theta*__
 
@@ -150,39 +148,32 @@ IF there is NO line-of-sight from the parent of Vertex S to its neighbor Vertex 
 
 Taking another example from Figure 7. There is no line-of-sight from the parent of Vertex S (which is S_start) towards S'. Therefore, Theta* will not consider path 1,deeming path 2 the shortest possible path towards the goal.
 
-<img src="../public/assets/2020-08-31-theta_star/thetaexpansion2.png" alt="Scenario 2 of paths 1 and 2 considered by Theta*" width="450"/>
+<img src="/public/assets/2020-08-31-theta_star/thetaexpansion2.png" alt="Scenario 2 of paths 1 and 2 considered by Theta*" width="450"/>
 
 __Figure 7: Scenario 2 of paths 1 and 2 considered by Theta*__
 
 An implementation of Theta* in ROS (Figure 8) shows that there are lesser unnecessary heading changes and that the path obtained is much closer to the true shortest path.
 
-<img src="../public/assets/2020-08-31-theta_star/thetastar_ros1.png" alt="Theta* planner in ROS" width="350"/>
+<img src="/public/assets/2020-08-31-theta_star/thetastar_ros1.png" alt="Theta* planner in ROS" width="350"/>
 
 __Figure 8: Theta* planner in ROS__
 
 But of course, looks are often deceiving and we need to compare the path lengths from the algorithms we have discussed earlier. Testing the planners on 3 different paths gives us the following results, which is mildly surprising as it indicates that even as Theta* theoretically yields shorter paths than A* Post-smoothed, it is only marginally shorter. The choice between A* Post-Smoothed and Theta* will depend on how much computational resources one is willing to trade for a shorter path. It is possible that in a very large cost map, there are more benefits to be reaped as the optimization makes more of a difference in path lengths.
 
-
-<img src="../public/assets/2020-08-31-theta_star/pathB_astar.png" alt="" width="325"/>
-
-<img src="../public/assets/2020-08-31-theta_star/pathB_astarps.png" alt="" width="325"/>
-
-<img src="../public/assets/2020-08-31-theta_star/pathB_thetastar.png" alt="" width="325"/>
-
-| Planning Algorithm    | Path        | Path Length |
+| Planning Algorithm    | Path Planned | Path Length [m]|
 | -----------           | -----------           | ----------- |
-| A*                    | pathB_astar.png       |             |
-| A* Post Smoothed      | pathB_astarps.png        |             |
-| Theta *               | pathB_thetastar.png        |             |
-
+| A*                    | <img src="/public/assets/2020-08-31-theta_star/pathB_astar.png" alt="" width="350"/>      |22.36|
+| A* Post Smoothed      | <img src="/public/assets/2020-08-31-theta_star/pathB_astarps.png" alt="" width="350"/>    |22.14|
+| Theta *               | <img src="/public/assets/2020-08-31-theta_star/pathB_thetastar.png" alt="" width="350"/>  |21.75|
 
 Table 9: Path A, Comparison table of path lengths for A*, A*PS and Theta*
 
-| Planning Algorithm    | Path        | Path Length |
+| Planning Algorithm    | Path Planned | Path Length [m]|
 | -----------           | ----------- | ----------- |
-| A*                    | pathC_astar.png       |             |
-| A* Post Smoothed      | pathC_astarps.png       |             |
-| Theta *               | pathC_thetastar.png        |             |
+| A*                    | <img src="/public/assets/2020-08-31-theta_star/pathC_astar.png" alt="" width="350"/>      |22.25|
+| A* Post Smoothed      | <img src="/public/assets/2020-08-31-theta_star/pathC_astarps.png" alt="" width="350"/>    |21.76|
+| Theta *               | <img src="/public/assets/2020-08-31-theta_star/pathC_thetastar.png" alt="" width="350"/>  |21.53|
+
 Table 10: Path B, Comparison table of path lengths for A*, A*PS and Theta*
 
 
@@ -194,14 +185,16 @@ On the other hand, there are also numerous problems associated with Theta* that 
 
 The problems faced by Theta* are also recurring issues in the vast world of path planners. Other types of planners have sought to overcome these limitations and found success in various domains. The more notable ones are Hybrid A* [4] and State Lattice Planner [5], which are deterministic algorithms that have proved their effectiveness at the DARPA Grand Challenge. These planners will be the focus of a future discussion with a detailed study at their performance within the ROS framework.
 
-
 # Appendix A
 
 - Testing environment: The planners were implemented on the ROS kinetic stack and tested on turtlebot3_house world in Gazebo.
 
 - Uncredited figures are made by me
 
-Line-of-sight algorithm (C++):
+- This article was originally published on https://news.movel.ai/
+
+
+__Algorithm 4: Line-of-Sight Algorithm (C++)__
 ```
 LineOfSight(s, s'):
     x0 = s.x
@@ -257,7 +250,7 @@ LineOfSight(s, s'):
     return true
 ```
 
-Algorithm 4: Line-of-Sight
+
 
 
 # References
