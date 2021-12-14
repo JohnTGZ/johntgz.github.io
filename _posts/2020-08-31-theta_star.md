@@ -53,13 +53,13 @@ Algorithm 1: The classic A*
 
 However, as a grid-based planner, A* faces a serious limitation by restricting its search to discrete headings of 45 degrees.
 
-![Figure 1](../public/assets/2020-08-31-theta_star/8waycon.png "The 8-way connected search direction of A*")
+![Figure 1](/public/assets/2020-08-31-theta_star/8waycon.png "The 8-way connected search direction of A*")
 
 Figure 1: The 8-way connected search direction of A*. Red points is the current vertex and orange points are vertices to be expanded
 
 The true shortest path usually does not adhere to grid lines and can travel along arbitrary headings. This can lead to suboptimal paths for grid based planners like A* as the planner cannot form paths with arbitrary angles.
 
-![Figure 2](../public/assets/2020-08-31-theta_star/gridpathvsshortpath.png "Grid path versus true shortest path")
+![Figure 2](/public/assets/2020-08-31-theta_star/gridpathvsshortpath.png "Grid path versus true shortest path")
 
 Figure 2: Grid path versus true shortest path [1]
 
@@ -90,12 +90,13 @@ Algorithm 2: A* Post-Smoothing
 
 We can observe in Figure 4 that although the green path formed by A* Post-smoothing still has some unnecessary heading changes and waypoints, it is more optimal than the original A* path in Figure 3.
 
-AStarPS-1.png
+![Figure 4](/public/assets/2020-08-31-theta_star/AStarPS-1.png "Green path formed by A* Post-Smoothing")
 Figure 4: Green path formed by A* Post-Smoothing
 
 The post-smoothing for A* can reduce path lengths to a certain extent, limited by A*'s inability to consider paths that could potentially be shorter. This is illustrated in Figure 5 where A*'s discrete search direction does not allow it to change the side of an obstacle that it travels. Post-smoothing merely checks for the line-of-sight between existing points in the path.
 
-astarvsshortestpath.png
+
+![Figure 5](/public/assets/2020-08-31-theta_star/astarvsshortestpath.png "A* Post-Smoothing versus true shortest path")
 Figure 5: A* Post-Smoothing versus true shortest path [1]
 
 # Enter Theta*
@@ -109,9 +110,8 @@ Let's bring our attention to Figure 6. Here, the planner is expanding vertex B3.
 
 In this scenario, Theta* is able to consider both paths 1 and 2, whereas A* will only consider path 1. This is because Theta* checks for line-of-sight between the vertices and their parents during the expansion phase, whereas A* Post-Smoothing only checks for line-of-sight after it has already formed a path.
 
-thetaexpansion1.png
+![Figure 6](/public/assets/2020-08-31-theta_star/thetaexpansion1.png "Scenario 1 of paths 1 and 2 considered by Theta*")
 Figure 6: Scenario 1 of paths 1 and 2 considered by Theta*
-
 
 By incorporating line-of-sight checks in the updateVertex step from Algorithm 1, we are able to "interleave searching and smoothing". Algorithm 3 shows the steps that lead to the formation of paths 1 and 2. Path 1 is the original A* algorithm whereas path 2 shows the characteristics of the Theta* planner.
 
@@ -146,19 +146,21 @@ IF there is NO line-of-sight from the parent of Vertex S to its neighbor Vertex 
 
 Taking another example from Figure 7. There is no line-of-sight from the parent of Vertex S (which is S_start) towards S'. Therefore, Theta* will not consider path 1,deeming path 2 the shortest possible path towards the goal.
 
-thetaexpansion2.png
+![Figure 7](/public/assets/2020-08-31-theta_star/thetaexpansion2.png "Scenario 2 of paths 1 and 2 considered by Theta*")
 Figure 7: Scenario 2 of paths 1 and 2 considered by Theta*
 
 An implementation of Theta* in ROS (Figure 8) shows that there are lesser unnecessary heading changes and that the path obtained is much closer to the true shortest path.
 
-
+![Figure 8](/public/assets/2020-08-31-theta_star/thetastar_ros1.png "Theta* planner in ROS")
 Figure 8: Theta* planner in ROS
-
 
 But of course, looks are often deceiving and we need to compare the path lengths from the algorithms we have discussed earlier. Testing the planners on 3 different paths gives us the following results, which is mildly surprising as it indicates that even as Theta* theoretically yields shorter paths than A* Post-smoothed, it is only marginally shorter. The choice between A* Post-Smoothed and Theta* will depend on how much computational resources one is willing to trade for a shorter path. It is possible that in a very large cost map, there are more benefits to be reaped as the optimization makes more of a difference in path lengths.
 
 
-
+| Syntax      | Description |
+| ----------- | ----------- |
+| Header      | Title       |
+| Paragraph   | Text        |
 Figure 9: Comparison table of path lengths for A*, A*PS and Theta*
 
 
@@ -173,7 +175,9 @@ The problems faced by Theta* are also recurring issues in the vast world of path
 
 # Appendix A
 
-Testing environment: The planners were implemented on the ROS kinetic stack and tested on turtlebot3_house world in Gazebo.
+- Testing environment: The planners were implemented on the ROS kinetic stack and tested on turtlebot3_house world in Gazebo.
+
+- Uncredited figures are made by me
 
 Line-of-sight algorithm (C++):
 ```
