@@ -251,8 +251,6 @@ LineOfSight(s, s'):
 ```
 
 
-
-
 # References
 
 [1] K. Daniel, A. Nash, S. Koenig, and A. Felner, “Theta*: Any-Angle Path Planning on Grids,” Journal of Artificial Intelligence Research, vol. 39, pp. 533–579, 2010.
