@@ -21,7 +21,7 @@ The A* planner search is guided by the f-cost heuristic. The f-cost of a cell S 
 
 By means of a sorted open list, the planner will always traverse a cell that minimises the f-cost, and update the costs of existing traversed cells should it find a shorter path in the process.
 
-```
+``` 
 computeShortestPath(s_start, s_goal):
     g_cost[s_start] = 0
     parent[s_start] = s_start
@@ -53,14 +53,12 @@ Algorithm 1: The classic A*
 
 However, as a grid-based planner, A* faces a serious limitation by restricting its search to discrete headings of 45 degrees.
 
-![Figure 1](/public/assets/2020-08-31-theta_star/8waycon.png "The 8-way connected search direction of A*")
-
+<img src="../public/assets/2020-08-31-theta_star/8waycon.png" alt="drawing" width="200"/>
 Figure 1: The 8-way connected search direction of A*. Red points is the current vertex and orange points are vertices to be expanded
 
 The true shortest path usually does not adhere to grid lines and can travel along arbitrary headings. This can lead to suboptimal paths for grid based planners like A* as the planner cannot form paths with arbitrary angles.
 
 ![Figure 2](/public/assets/2020-08-31-theta_star/gridpathvsshortpath.png "Grid path versus true shortest path")
-
 Figure 2: Grid path versus true shortest path [1]
 
 We can observe these effects by implementing the classic A* algorithm in ROS, where the paths tend to be jagged, constrained to discrete headings of 45 degrees, resulting in paths that are much longer than necessary. The jagged paths are the result of the A* planner following the geometric constraints of the obstacles in the cost map. Figure 3 shows the green path formed by A* to be suboptimal and probably not feasible without an appropriate local planner. This is in comparison to the yellow path which is much closer to the true shortest path. Note: The paths have taken into account the inflation radius of the obstacles.
