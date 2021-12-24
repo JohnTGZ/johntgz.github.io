@@ -15,7 +15,6 @@ I've been wanting to do this for a while now, to code from scratch Brehensam and
 
 ## Introduction
 
-
 ## Good ol' Brehensam
 There are plenty of articles out there explaining the Brehensam Line Algorithm and there is a [particular one I like](https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html). I think he/she did a hella good job and I would like to provide the following pseudocode for the 8 octants as a supplement.
 
