@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Battle of Lines"
+title: "Battle of Line Rasters - Brehensam"
 ---
 
 Don't you think its fascinating how lines and circles are rendered on pixels?
@@ -142,11 +142,21 @@ FOR x = x1 to x2
 END FOR
 ```
 
-Now, let's start applying this! We start by drawing a  this pseudo code only applies for the first octant
+You can try implementing the above in your favourite programming language, but for now let's try implementing this in Golang! We will choose to draw a 12 pointed star to demonstrate that Brehensam is able to handle all signs and magnitude of gradients:
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octant_1.png" alt="octant_1" width="375"/>
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star.png" alt="12_pointed_star" width="150"/>
 
-__Figure 12: Octant 1__
+__Figure 12: 12 pointed star__
+
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star_raster_attempt.png" alt="12_pointed_star_raster_attempt" width="375"/>
+
+__Figure 13: 12 pointed star raster attempt__
+
+But wait, what's wrong? Turns out our pseudo code only applies for the second octant, which is highlighted in figure 14. We will need to modify our pseudocode to handle gradients of different magnitude and signs.
+
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octant_highlight_2.png" alt="octant_highlight_2" width="375"/>
+
+__Figure 14: Octant 2 is highlighted here__
 
 
 ### The 8 Octants
