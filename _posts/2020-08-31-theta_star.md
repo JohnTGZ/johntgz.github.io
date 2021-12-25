@@ -189,11 +189,6 @@ The problems faced by Theta* are also recurring issues in the vast world of path
 
 - Testing environment: The planners were implemented on the ROS kinetic stack and tested on turtlebot3_house world in Gazebo.
 
-- Uncredited figures are made by me
-
-- This article was originally published on https://news.movel.ai/
-
-
 __Algorithm 4: Line-of-Sight Algorithm (C++)__
 ```
 LineOfSight(s, s'):
@@ -250,6 +245,10 @@ LineOfSight(s, s'):
     return true
 ```
 
+# Notes
+- Uncredited figures are made by me
+- Please let me know if there is any inconsistency or misstated facts at john_tanguanzhong@hotmail.com
+- This article was originally published on https://news.movel.ai/
 
 # References
 
