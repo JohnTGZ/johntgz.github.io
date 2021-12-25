@@ -13,23 +13,24 @@ I've been wanting to do this for a while now, to code from scratch Brehensam and
 
 # Introduction
 
-Rasterization turns out to be one of those things that are really old and widely used, yet it is among the least understood rendering technique among most people who rely on it daily (I'm looking at you dear reader). Perhaps let's start with a problem that Rasterization actually solves.
+Rasterization turns out to be one of those things that are really old and widely used, yet it is among one of the least understood rendering techniques among most people who rely on it daily (Yes I'm looking at you dear reader). 
 
-Let's start with drawing a line from a center of one grid (point A) to another (point B) on a pixelized screen. What would have been a simple affair is now something that we have to wrangle with: How can we represent lines between arbitrary points as pixels?
+Perhaps let's start by describing a problem that Rasterization solves.
+We draw a line from a center of one grid (point A) to another (point B). Now on a pixel display, how can we best represent lines between arbitrary points?
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raw.png" alt="A simple line AB" width="300"/>
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raw.png" alt="A simple line AB" width="200"/>
 
 __Figure 1: A simple line AB__
 
 Even if we have all the time in the world and choose to manually colorize pixels to achieve the perfectly rasterized line, we might not end up with a set of pixels that best represent the line AB.
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raster_attempt.png" alt="An attempt at rasterizing line AB" width="300"/>
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raster_attempt.png" alt="An attempt at rasterizing line AB" width="200"/>
 
-__Figure 2: An attempt at rasterizing line AB__
+__Figure 2: A manual attempt at rasterizing line AB__
 
 Let's compare this to actually using a rasterization algorithm (Brehensam's Line Algorithm). But the question remains: How do we know what if the rasterized result is actually the closest approximation/representation of the actual line? On what mathematical basis can we decide this? 
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raster_correct.png" alt="Line AB rasterized using Brehensam's Algorithm" width="300"/>
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raster_correct.png" alt="Line AB rasterized using Brehensam's Algorithm" width="200"/>
 
 __Figure 3: Line AB rasterized using Brehensam's Algorithm__
 
@@ -52,7 +53,7 @@ __Figure 5: Graph Coordinate Frame__
 
 ## Problem Statement
 
-The problem statement is to represent a line from point A(x1, y1) to B(x2, y2) on a grid. We make the following assumptions:
+The problem statement is to represent a line from point A (x1, y1) to B (x2, y2) on a grid algorithmicallym, whilst keeping the error between the pixels plotted and the actual line to a minimum. We make the following assumptions:
 1. The start and end points coordinate are integers. 
 2. We will only be incrementing x as we plot the line. 
 
