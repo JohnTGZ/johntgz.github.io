@@ -11,10 +11,9 @@ I've been wanting to do this for a while now, to code from scratch Brehensam and
 2. [Good ol' Brehensam](#Goodol'Brehensam)
 3. [Anti-aliasing you say?](#Anti-aliasing you say?) -->
 
-## Introduction
+# Introduction
 
 Rasterization turns out to be one of those things that are really old and widely used, yet it is among the least understood rendering technique among most people who rely on it daily (I'm looking at you dear reader). Perhaps let's start with a problem that Rasterization actually solves.
-Note: ([For Rastafari, please refer to this link](https://en.wikipedia.org/wiki/Rastafari))
 
 Let's start with drawing a line from a center of one grid (point A) to another (point B) on a pixelized screen. What would have been a simple affair is now something that we have to wrangle with: How can we represent lines between arbitrary points as pixels?
 
@@ -35,7 +34,7 @@ Let's compare this to actually using a rasterization algorithm (Brehensam's Line
 __Figure 3: Line AB rasterized using Brehensam's Algorithm__
 
 
-## Good ol' Brehensam
+# Good ol' Brehensam
 Let's take a look at the Brehensam Line Algorithm, a classic line rasterization algorithm still in great use today. It was developed in 1962 at IBM [1] for a [Calcomp Plotter](https://en.wikipedia.org/wiki/Calcomp_plotter). 
 There are plenty of articles out there explaining the Brehensam Line Algorithm and there is a [particular one I like](https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html). I think he did a hella good job and I would like to build upon Colin's work and focus on the intuition which will lead us to the algorithm.
 
@@ -120,11 +119,13 @@ __Figure 11: New error for picking (x+2, y)__
 
 Take note that the error always takes reference from the y coordinate of the currently choosen grid!
 
+# Pseudocode
+
 With the preceding concepts in place, we are ready to form our pseudocode:
 ```
-#Set error to zero
+# Set error to zero
 e = 0 
-#Calculate gradient
+# Calculate gradient
 m = (y2 - y1)/(x2 - x1)
 
 y = y1
@@ -132,39 +133,178 @@ y = y1
 FOR x = x1 to x2
     CALL plot(x,y)
     IF ( e + m < 0.5)
-        #Increment error by m (error offset taken from y)
+        # Increment error by m (error offset taken from y)
         e += m
     ELSE 
         y += 1
-        #Increment error by m but error offset taken from y+1
+        # Increment error by m but error offset taken from y+1
         e += m -1
     END IF
 END FOR
 ```
 
-You can try implementing the above in your favourite programming language, but for now let's try implementing this in Golang! We will choose to draw a 12 pointed star to demonstrate that Brehensam is able to handle all signs and magnitude of gradients:
+__Code Block 1: Brehensam's Line Algorithm for Octant 2__
+
+You can try implementing the above in your favourite programming language, but for now let's try implementing this in Golang! 
+
+```
+//GOLANG IMPLEMENTATION
+
+m := (float64(y2 - y1)) / (float64(x2 - x1)) //calculate gradient
+
+for x, y, err := x1, y1, 0.0; x != x2+1; x += 1 {
+    // Plot point (x,y)
+    img.Set(x, y, color)
+    if (err + m) < 0.5 {
+        // Increment error by m (error offset taken from y)
+        err += m
+    } else {
+        y += 1
+        // Increment error by m but error offset taken from y+1
+        err += m - 1
+    }
+}
+
+```
+__Code Block 2: Code Block 1 implemented in GOLang__
+
+We will choose to draw a 12 pointed star (Figure 12) to demonstrate that Brehensam is able to handle all signs and magnitude of gradients, by passing in the following input, which will be parsed as x1, y1 -> x2, y2
+```
+8,8 -> 4,0; 
+8,8 -> 0,4; 
+8,8 -> 12,0;
+8,8 -> 16,4;
+8,8 -> 16,12;
+8,8 -> 12,16;
+8,8 -> 4,16;
+8,8 -> 0,12;
+8,8 -> 8,0;
+8,8 -> 0,8;
+8,8 -> 8,16;
+8,8 -> 16,8;
+```
+__Code Block 3: Input given to my programme__
 
 <img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star.png" alt="12_pointed_star" width="150"/>
 
 __Figure 12: 12 pointed star__
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star_raster_attempt.png" alt="12_pointed_star_raster_attempt" width="375"/>
+But wait... running our algorithm now will simply put us in an infinite loop where both x and y and incremented, which means that for some lines, (err + m) will always be more than or equal to 0.5 
 
-__Figure 13: 12 pointed star raster attempt__
-
-But wait, what's wrong? Turns out our pseudo code only applies for the second octant, which is highlighted in figure 14. We will need to modify our pseudocode to handle gradients of different magnitude and signs.
+Turns out our pseudo code only applies for the second octant, which is highlighted in figure 14. Our current algorithm is only able to handle positive gradient values between 1 and 0.
 
 <img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octant_highlight_2.png" alt="octant_highlight_2" width="375"/>
 
-__Figure 14: Octant 2 is highlighted here__
+__Figure 14: Octant 2 is highlighted here among the other octants__
 
+# What about the other 7 Octants?
 
-### The 8 Octants
-Show diagram for 8 octants
-Give pseudocode for each octant
+## Dealing with gradient values between 1 and INFINITY
 
+Lets solve for the case that we have a positive gradient value between 1 and infinity. There will be a few small changes made to the algorithm:
 
-### A slight problem for implementing brehensam for drawing images 
+1. We will need to set the new gradient value as the reciprocal of the actual line gradient.
+2. Iterate y from y1 to y2 (Instead of iterating through x)
+
+```
+e = 0 
+# Calculate reciprocal of gradient
+m = (x2 - x1)/(y2 - y1)
+
+x = x1
+
+FOR y = y1 to y2
+    CALL plot(x,y)
+    IF ( e + m < 0.5)
+        e += m
+    ELSE 
+        x += 1
+        e += m -1
+    END IF
+END FOR
+```
+
+__Code Block 4: Brehensam Octant 1__
+
+## Dealing with negativity
+
+We can use the easy trick of swapping the end and start points of the line, to make the gradient negative, but let's try another way around it.
+
+```
+#...
+
+FOR x = x1 to x2
+    CALL plot(x,y)
+    IF ( e + m > -0.5)
+        e += m
+    ELSE 
+        y += 1
+        e += m + 1
+    END IF
+END FOR
+```
+
+__Code Block 5: Brehensam Octant 3__
+
+This can similarly be applied to gradient values where -INFINITY < m < 1.
+
+# Getting rid of floating points
+
+So far everything we have talked about involves floating point operations, but that can be the bane of all evil when it comes to efficiency. So naturally we would want to simplify it to only perform integer based operations. 
+
+The following equations will be further massaged to get rid of the floating point variable m:
+> **e + m < 0.5** *(1)*
+> 
+> **e = e + m** *(2)*
+> 
+> **e = e + m - 1** *(2)*
+
+For **equation (1)**, we will multiply both sides by dx, where dx = x2 - x1:
+> **e + m < 0.5** *(1)*
+> 
+> (e + m) * dx < 0.5 * dx 
+> 
+> (e + (dy/dx)) * dx < 0.5 * dx 
+> 
+> 2*e * dx + 2*dy < dx 
+> 
+> 2*(e' + dy) < dx (_where e' = e*dx_)
+> 
+> __e * dx + dy < 0.5 * dx__ *(4)*
+
+For **equation (2)**, we also multiply both sides by dx:
+> **e = e + m** *(2)*
+> 
+> e * dx = (e + m) * dx 
+> 
+> __e' = e' + dy__ *(5)*
+
+For **equation (3)**, the same thing:
+> **e = e + m - 1** *(3)*
+> 
+> __e' = e' + dy - dx__  *(6)*
+
+Now our new pseudocode for octant 2 becomes:
+```
+e = 0 
+y = y1
+dy = y2 - y1
+dx = x2 - x1
+
+FOR x = x1 to x2
+    CALL plot(x,y)
+    IF ( 2(e' + dy) < dx)
+        # Increment error by m (error offset taken from y)
+        e' += dy
+    ELSE 
+        y += 1
+        # Increment error by m but error offset taken from y+1
+        e' += dy - dx
+    END IF
+END FOR
+```
+
+### A slight problem for actually drawing images 
 However, we have a slight problem.
 Conventionally, image coordinate frames have their origin at the top left, with the x direction being positive towards the right, and y direction towards the bottom.
  
@@ -183,7 +323,6 @@ Brehensam has been extended to be drawn for circles too
 However, some of the issues that Brehensam face is the aliasing effect. The lines appear jagged up close and people do get sick of retro-looking graphics after a while. 
 
 Talk about Wu's algorithm and lead up to next article
-
 
 
 ## Notes
