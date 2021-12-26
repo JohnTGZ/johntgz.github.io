@@ -144,7 +144,7 @@ FOR x = x1 to x2
 END FOR
 ```
 
-__Code Block 1: Brehensam's Line Algorithm for Octant 2__
+__Code Block 1: Brehensam's Line Algorithm for Octant 2 Pseudocode__
 
 You can try implementing the above in your favourite programming language, but for now let's try implementing this in Golang! 
 
@@ -225,7 +225,7 @@ FOR y = y1 to y2
 END FOR
 ```
 
-__Code Block 4: Brehensam Octant 1__
+__Code Block 4: Brehensam Octant 1 Pseudocode__
 
 ## Dealing with negativity
 
@@ -245,11 +245,84 @@ FOR x = x1 to x2
 END FOR
 ```
 
-__Code Block 5: Brehensam Octant 3__
+__Code Block 5: Brehensam Octant 3 Pseudocode__
 
 This can similarly be applied to gradient values where -INFINITY < m < 1.
 
-# Getting rid of floating points
+
+Now, we can reduce the pseudocode above to as little lines as possible and implement this in golang:
+
+<details>
+<summary> <b> Golang Implementation of Brehensam Float </b> </summary>
+<pre>
+
+	dx, dy := x2-x1, y2-y1
+
+	grad_sign := 1.0                  //Sign of gradient
+	if bool(dx < 0) != bool(dy < 0) { // (dx is negative) XOR (dy is negative)
+		grad_sign = -1.0
+	}
+
+	//We use x_inc and y_inc to either increment or decrement x or y depending on the sign of the gradient
+	x_inc := line_render.CopySignInt(1, dx)
+	y_inc := line_render.CopySignInt(1, dy)
+
+	var m float64
+	if dx != 0 { //Only calculate gradient if it is not infinite
+		m = (float64(dy)) / (float64(dx)) //gradient
+	}
+	if line_render.Abs(dy) > line_render.Abs(dx) { // if absolute value of gradient > 1, then invert it
+		m = 1 / m
+	}
+
+	if dx == 0 && dy == 0 {
+		fmt.Printf("Start and end coordinates are the same \n")
+		return
+	} else if dx == 0 { // m == INF
+		for y := y1; y != y2+y_inc; y += y_inc {
+			img.Set(x1, y, color)
+		}
+	} else if dy == 0 { // m == 0
+		for x := x1; x != x2+x_inc; x += x_inc {
+			img.Set(x, y1, color)
+		}
+	} else if line_render.Abs(dy) > line_render.Abs(dx) { // 1 < abs(m) < INF
+		// fmt.Printf("1st, 5th, 4th and 8th Octant: 1 < abs(m) < INF \n")
+		for x, y, err := x1, y1, 0.0; y != y2+y_inc; y += y_inc {
+			img.Set(x, y, color)
+			if grad_sign*(err+m) < 0.5 {
+				err += m
+			} else {
+				err += m - grad_sign*1
+				x += x_inc
+			}
+		}
+	} else { // 0 < abs(m) <= 1
+		// fmt.Printf("2nd, 6th, 3rd and 7th Octant: 0 < abs(m) <= 1 \n")
+		for x, y, err := x1, y1, 0.0; x != x2+x_inc; x += x_inc {
+			img.Set(x, y, color)
+			if grad_sign*(err+m) < 0.5 {
+				err += m
+			} else {
+				err += m - grad_sign*1
+				y += y_inc
+			}
+		}
+	}
+</pre>
+</details>
+
+__Code Block 6: Golang Implementation of Brehensam Float__
+
+With this code, we are poised to form our 12 pointed star using the input from Code Block 3.
+
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star_raster.png" alt="12_pointed_star_raster" width="125"/>
+
+__Figure 15: 12 Pointed Star Rasterized__
+
+---
+
+# Floating point operations Shoo!
 
 So far everything we have talked about involves floating point operations, but that can be the bane of all evil when it comes to efficiency. So naturally we would want to simplify it to only perform integer based operations. 
 
@@ -304,22 +377,117 @@ FOR x = x1 to x2
     END IF
 END FOR
 ```
+__Code Block 7: Brehensam Integer Version (Octant 2) Pseudocode__
 
-### A slight problem for actually drawing images 
-However, we have a slight problem.
-Conventionally, image coordinate frames have their origin at the top left, with the x direction being positive towards the right, and y direction towards the bottom.
- 
-We will need to vertically flip the 8 octants for our model to work
+Implementing this in Golang...
 
-## Can I has a house?
+<details>
+<summary> <b> Golang Implementation of Brehensam Integer Version </b> </summary>
+<pre>
 
-<Show the house I drew>
+    dx, dy := x2-x1, y2-y1
 
-## What about circles? Can I have them too?
+    grad_sign := 1                    //Sign of gradient
+    if bool(dx < 0) != bool(dy < 0) { // (dx is negative) XOR (dy is negative)
+        grad_sign = -1
+    }
+    x_inc := line_render.CopySignInt(1, dx)
+    y_inc := line_render.CopySignInt(1, dy)
 
-Brehensam has been extended to be drawn for circles too
+    if dx == 0 && dy == 0 {
+        fmt.Printf("Start and end coordinates are the same \n")
+        return
+    } else if dx == 0 { // m == INF
+        for y := y1; y != y2+y_inc; y += y_inc {
+            img.Set(x1, y, color)
+        }
+    } else if dy == 0 { // m == 0
+        for x := x1; x != x2+x_inc; x += x_inc {
+            img.Set(x, y1, color)
+        }
+    } else if line_render.Abs(dy) > line_render.Abs(dx) { // 1 < abs(m) < INF
+        // fmt.Printf("1st, 5th, 4th and 8th Octant: 1 < abs(m) < INF \n")
+        for x, y, err := x1, y1, 0; y != y2+y_inc; y += y_inc {
+            img.Set(x, y, color)
+            if grad_sign*2*(err+dx) < dy {
+                err += y_inc * (dx)
+            } else {
+                err += y_inc * (dx - (grad_sign * dy))
+                x += x_inc
+            }
+        }
+    } else { // 0 < m <= 1
+        // fmt.Printf("2nd, 6th, 3rd and 7th Octant: 0 < abs(m) <= 1 \n")
+        for x, y, err := x1, y1, 0; x != x2+x_inc; x += x_inc {
+            img.Set(x, y, color)
+            if grad_sign*2*(err+dy) < dx {
+                err += x_inc * (dy)
+            } else {
+                err += x_inc * (dy - (grad_sign * dx))
+                y += y_inc
+            }
+        }
+    }
+</pre>
+</details>
 
-## Anti-aliasing you say? 
+__Code Block 8: Golang Implementation of Brehensam Integer__
+
+---
+
+Note: If we are going to plot on images, we need to use the image coordinate frames Figure 4 instead of Figure 5. This means that the octant model in Figure 14 will be flipped vertically as shown in Figure 16.
+
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octants_flipped.png" alt="Flipped Octant model for image coordinate frame" width="250"/>
+
+__Figure 16: Flipped Octant model for image coordinate frame__
+
+--- 
+
+## Comparism between Floating Point and Integer Version
+
+Now let's do some "dirty" comparism by utilising simple timers in our code segments. 
+
+We shall draw a nice little house (The only one I might be able to afford given the housing situation in Singpoare), and compare the time required to draw it using the integer and floating point version of Brehensam (Code block 6 and 8 respectively).
+
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/house_raster.png" alt="house_raster.png" width="200"/>
+
+__Figure 17: Our little Raster House__
+
+```
+0,20 -> 15,5; 1
+15,5 -> 30,40; 2
+30,40 -> 0,20; 3
+0,20 -> 0,80; 4
+0,80 -> 30,100; 5
+30,100 -> 30,40; 6
+30,40 -> 100,35; 7
+100,35 -> 100,95; 8
+100,95 -> 30,100; 9
+100,35 -> 75,0; 10
+75,0 -> 15,5; 11
+10,87 -> 20,93; door 1
+20,93 -> 20,43; door 2
+20,43 -> 10,37; door 3
+10,37 -> 10,87; door 4
+35,80 -> 60,78; window a1
+60,78 -> 60,58; window a2
+60,58 -> 35,60; window a3
+35,60 -> 35,80; window a4
+70,77 -> 95,75; window b1
+95,75 -> 95,55; window b2
+95,55 -> 70,57; window b3
+70,57 -> 70,77; window b4
+```
+__Code Block 9: Input used to draw house__
+
+
+Upon timing both implementations, we can see that the integer implementation does outperform the float implementation although seemingly not by much, but that might be because we did not use large data input sizes.
+
+<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/comparism_float_int_brehensam.png" alt="comparism_float_int_brehensam.png" width="400"/>
+
+__Figure 17: Comparism in elapsed run time between integer and float implementation__
+
+## Conclusion
 
 However, some of the issues that Brehensam face is the aliasing effect. The lines appear jagged up close and people do get sick of retro-looking graphics after a while. 
 
@@ -327,8 +495,10 @@ Talk about Wu's algorithm and lead up to next article
 
 
 ## Notes
+- The source code for my Golang rasterization program is here
 - Diagrams were made with [excalidraw](https://excalidraw.com/)
-- I tried to follow [3] for the pseudocode syntax, if you know of any better pseudocode formats please ping me!
+- I tried to follow [3] for the pseudocode syntax.
+- I have been trying to learn markdown formatting properly and [this guide helped me tremendously](https://gist.github.com/apaskulin/1ad686e42c7165cb9c22f9fe1e389558).
 - Please let me know if there are any inconsistencies or misstated facts at john_tanguanzhong@hotmail.com
 
 ## References
@@ -336,10 +506,10 @@ Talk about Wu's algorithm and lead up to next article
 2. [Paul E. Black. Dictionary of Algorithms and Data Structures, NIST.](https://xlinux.nist.gov/dads/HTML/bresenham.html)
 
 
-[An Introduction to Writing Good Pseudocode](https://towardsdatascience.com/pseudocode-101-an-introduction-to-writing-good-pseudocode-1331cb855be7)
+3. [An Introduction to Writing Good Pseudocode](https://towardsdatascience.com/pseudocode-101-an-introduction-to-writing-good-pseudocode-1331cb855be7)
 
 
-
+4. 
 
 # CHECKS TO DO
 
@@ -351,4 +521,4 @@ Talk about Wu's algorithm and lead up to next article
    1. Are the headings done properly?
 3. Crediting
    1. Are all sources credited properly?
-   2. 
+4. Add section links to reference to own figures and code blocks
