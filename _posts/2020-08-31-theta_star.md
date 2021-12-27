@@ -3,6 +3,22 @@ layout: post
 title: "Theta*: Simple Any-Angle Algorithm based on A*"
 ---
 
+# Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Introduction](#introduction)
+- [Why not A*?](#why-not-a)
+  - [Back To A*](#back-to-a)
+  - [A (post-)Smooth Criminal](#a-post-smooth-criminal)
+- [Enter The Theta*](#enter-the-theta)
+  - [Why not just stick with A*: Optimality](#why-not-just-stick-with-a-optimality)
+  - [Pseudocode and Implementation](#pseudocode-and-implementation)
+- [Comparism between A*, A* Post Smoothed and Theta*](#comparism-between-a-a-post-smoothed-and-theta)
+- [Conclusion](#conclusion)
+- [Appendix A](#appendix-a)
+- [Notes](#notes)
+- [References](#references)
+
 # Introduction
 
 Taking a look at ROS1's navigation stack, the global planner's default implementation is either A* or Dijkstra, both of which are classic path planning algorithms that work for navigating simple and structured environments. However, both algorithms fall short when it comes to achieving the true shortest possible path between 2 points. This is where Theta* shines as an any-angle path planner. Theta* is an algorithm built upon A* that relies on line-of-sight to reduce the distance path optimality.
@@ -11,6 +27,7 @@ In this brief foray into any-angle path planning, our focus will be on more intu
 
 # Why not A*?
 
+## Back To A*
 
 The A* planner search is guided by the f-cost heuristic. The f-cost of a cell S is a combination of its g-cost and h-cost:
 
@@ -69,6 +86,7 @@ __Figure 3: Blue path is formed by A* and the yellow path is a possible true sho
 
 In order to optimize the length of the path, we can add a post processing step to A* that does not require the original algorithm to be modified. This is known as the A* Post-smoothing algorithm [2], which checks for a valid line-of-sight (refer to Appendix A) between the vertices in the existing planned path. Therefore reducing the amount of unnecessary heading changes and also bringing the path closer to an optimal solution.
 
+## A (post-)Smooth Criminal
 
 ```
 // For path of length n
@@ -86,7 +104,6 @@ AStarPostSmoothing(path):
 ```
 Algorithm 2: A* Post-Smoothing
 
-
 We can observe in Figure 4 that although the green path formed by A* Post-smoothing still has some unnecessary heading changes and waypoints, it is more optimal than the original A* path in Figure 3.
 
 <img src="/public/assets/2020-08-31-theta_star/AStarPS-1.png" alt="Green path formed by A* Post-Smoothing" width="350"/>
@@ -100,7 +117,9 @@ The post-smoothing for A* can reduce path lengths to a certain extent, limited b
 
 __Figure 5: A* Post-Smoothing versus true shortest path [1]__
 
-# Enter Theta*
+# Enter The Theta*
+
+## Why not just stick with A*: Optimality
 
 To deal with the problem of being unable to consider paths other than those along grid lines or at discrete headings, we cannot separate the planning and post processing step. According to Alex et al. [3]:
 
@@ -117,6 +136,7 @@ __Figure 6: Scenario 1 of paths 1 and 2 considered by Theta*__
 
 By incorporating line-of-sight checks in the updateVertex step from Algorithm 1, we are able to "interleave searching and smoothing". Algorithm 3 shows the steps that lead to the formation of paths 1 and 2. Path 1 is the original A* algorithm whereas path 2 shows the characteristics of the Theta* planner.
 
+## Pseudocode and Implementation
 
 ```
 updateVertex(s,s')
@@ -157,6 +177,8 @@ An implementation of Theta* in ROS (Figure 8) shows that there are lesser unnece
 <img src="/public/assets/2020-08-31-theta_star/thetastar_ros1.png" alt="Theta* planner in ROS" width="350"/>
 
 __Figure 8: Theta* planner in ROS__
+
+# Comparism between A*, A* Post Smoothed and Theta*
 
 But of course, looks are often deceiving and we need to compare the path lengths from the algorithms we have discussed earlier. Testing the planners on 3 different paths gives us the following results, which is mildly surprising as it indicates that even as Theta* theoretically yields shorter paths than A* Post-smoothed, it is only marginally shorter. The choice between A* Post-Smoothed and Theta* will depend on how much computational resources one is willing to trade for a shorter path. It is possible that in a very large cost map, there are more benefits to be reaped as the optimization makes more of a difference in path lengths.
 
