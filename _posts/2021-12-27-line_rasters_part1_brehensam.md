@@ -29,19 +29,19 @@ Rasterization turns out to be one of those things that are really old and widely
 Perhaps let's start by describing a problem that Rasterization solves.
 We draw a line from a center of one grid (point A) to another (point B). Now on a pixel display, how can we best represent lines between arbitrary points?
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raw.png" alt="A simple line AB" width="200"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raw.png" alt="A simple line AB" width="200"/>
 
 __Figure 1: A simple line AB__
 
 Even if we have all the time in the world and choose to manually colorize pixels to achieve the perfectly rasterized line, we might not end up with a set of pixels that best represent the line AB.
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raster_attempt.png" alt="An attempt at rasterizing line AB" width="200"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raster_attempt.png" alt="An attempt at rasterizing line AB" width="200"/>
 
 __Figure 2: A manual attempt at rasterizing line AB__
 
 Let's compare this to actually using a rasterization algorithm (Brehensam's Line Algorithm). But the question remains: How do we know what if the rasterized result is actually the closest approximation/representation of the actual line? On what mathematical basis can we decide this? 
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raster_correct.png" alt="Line AB rasterized using Brehensam's Algorithm" width="200"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/line_ab_raster_correct.png" alt="Line AB rasterized using Brehensam's Algorithm" width="200"/>
 
 __Figure 3: Line AB rasterized using Brehensam's Algorithm__
 
@@ -52,13 +52,13 @@ There are plenty of articles out there explaining the Brehensam Line Algorithm a
 
 Small note: Some articles tend to use the following coordinate frame, taking the top left as the origin (0,0), right as positive x direction, and downwards as the positive y direction.
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/image_coordinate_frame.png" alt="Image Coordinate Frame" width="100"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/image_coordinate_frame.png" alt="Image Coordinate Frame" width="100"/>
 
 __Figure 4: Image Coordinate Frame__
 
 To keep it visually intuitive. I will instead use the graph coordinate frame, and not worry about how it will translate to the image coordinate frame for now: 
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/graph_coordinate_frame.png" alt="Graph Coordinate Frame" width="100"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/graph_coordinate_frame.png" alt="Graph Coordinate Frame" width="100"/>
 
 __Figure 5: Graph Coordinate Frame__
 
@@ -68,18 +68,18 @@ The problem statement is to represent a line from point A (x1, y1) to B (x2, y2)
 1. The start and end points coordinate are integers. 
 2. We will only be incrementing x as we plot the line. 
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_0.png" alt="brehensam_0" width="450"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_0.png" alt="brehensam_0" width="450"/>
 
 __Figure 6: Problem Set up__
 
 Given the following assumption, it suffices to say that we have only 2 possible choices from which to plot. Will it be (x+1, y) in figure 7 or (x+1, y+1) in figure 8?
 Brehensam's algorithm will be alternating between these 2 choices for the first octant.
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_1a.png" alt="brehensam_1a" width="400"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_1a.png" alt="brehensam_1a" width="400"/>
 
 __Figure 7: Pixelize (x+1, y)__
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_1b.png" alt="brehensam_1b" width="400"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_1b.png" alt="brehensam_1b" width="400"/>
 
 __Figure 8: Or pixelize (x+1, y+1)?__
 
@@ -102,7 +102,7 @@ Rasterized grid = (x + 2, y + 1)
 
 ```
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_2.png" alt="brehensam_2" width="500"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_2.png" alt="brehensam_2" width="500"/>
 
 __Figure 9: Error offset of y coordinate__
 
@@ -117,7 +117,7 @@ If we pick (x+2, y+1), the new error is now:
 > **e_new** = (y + e_old + m) - (y + 1)
 > **e_new** = e_old + m - 1
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_3a.png" alt="brehensam_3a" width="375"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_3a.png" alt="brehensam_3a" width="375"/>
 
 __Figure 10: New error for picking (x+2, y+1)__
 
@@ -125,7 +125,7 @@ If we pick (x+2, y), the new error is now:
 > **e_new** = (y + e_old + m) - (y)
 > **e_new** = e_old + m
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_3b.png" alt="brehensam_3b" width="375"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_3b.png" alt="brehensam_3b" width="375"/>
 
 __Figure 11: New error for picking (x+2, y)__
 
@@ -199,7 +199,7 @@ We will choose to draw a 12 pointed star (Figure 12) to demonstrate that Brehens
 ```
 __Code Block 3: Input given to my programme__
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star.png" alt="12_pointed_star" width="150"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star.png" alt="12_pointed_star" width="150"/>
 
 __Figure 12: 12 pointed star__
 
@@ -207,7 +207,7 @@ But wait... running our algorithm now will simply put us in an infinite loop whe
 
 Turns out our pseudo code only applies for the second octant, which is highlighted in figure 14. Our current algorithm is only able to handle positive gradient values between 1 and 0.
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octant_highlight_2.png" alt="octant_highlight_2" width="375"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octant_highlight_2.png" alt="octant_highlight_2" width="375"/>
 
 __Figure 14: Octant 2 is highlighted here among the other octants__
 
@@ -327,7 +327,7 @@ __Code Block 6: Golang Implementation of Brehensam Float__
 
 With this code, we are poised to form our 12 pointed star using the input from Code Block 3.
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star_raster.png" alt="12_pointed_star_raster" width="125"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/12_pointed_star_raster.png" alt="12_pointed_star_raster" width="125"/>
 
 __Figure 15: 12 Pointed Star Rasterized__
 
@@ -448,7 +448,7 @@ __Code Block 8: Golang Implementation of Brehensam Integer__
 
 Note: If we are going to plot on images, we need to use the image coordinate frames Figure 4 instead of Figure 5. This means that the octant model in Figure 14 will be flipped vertically as shown in Figure 16.
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octants_flipped.png" alt="Flipped Octant model for image coordinate frame" width="250"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octants_flipped.png" alt="Flipped Octant model for image coordinate frame" width="250"/>
 
 __Figure 16: Flipped Octant model for image coordinate frame__
 
@@ -460,7 +460,7 @@ Now let's do some "dirty" comparism by utilising simple timers in our code segme
 
 We shall draw a nice little house (The only one I might be able to afford given the housing situation in Singpoare), and compare the time required to draw it using the integer and floating point version of Brehensam (Code block 6 and 8 respectively).
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/house_raster.png" alt="house_raster.png" width="200"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/house_raster.png" alt="house_raster.png" width="200"/>
 
 __Figure 17: Our little Raster House__
 
@@ -496,7 +496,7 @@ __Code Block 9: Input used to draw house__
 
 Upon timing both implementations, we can see that the integer implementation does outperform the float implementation although seemingly not by much, but that might be because we did not use large data input sizes.
 
-<img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/comparism_float_int_brehensam.png" alt="comparism_float_int_brehensam.png" width="400"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/comparism_float_int_brehensam.png" alt="comparism_float_int_brehensam.png" width="400"/>
 
 __Figure 17: Comparism in elapsed run time between integer and float implementation__
 
