@@ -1,15 +1,26 @@
 ---
 layout: post
-title: "Battle of Line Rasters - Brehensam"
+title: "Line Rasters Part 1 - Brehensam"
 ---
 
 Don't you think its fascinating how lines and circles are rendered on pixels?
-I've been wanting to do this for a while now, to code from scratch Brehensam and Wu's line algorithm in Golang.
+I've been wanting to to code from scratch Brehensam line algorithm in Golang. This is the 1st part of a 3 part article that deals with 
 
-<!-- # Table of Contents
-1. [Introduction](#Introduction)
-2. [Good ol' Brehensam](#Goodol'Brehensam)
-3. [Anti-aliasing you say?](#Anti-aliasing you say?) -->
+# Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Introduction](#introduction)
+- [What's The Problem?](#whats-the-problem)
+- [Brehensam Pseudocode and Implementation](#brehensam-pseudocode-and-implementation)
+  - [Focusing on Octant 2](#focusing-on-octant-2)
+  - [Octant 1 and 5: Gradient values between 1 and INFINITY](#octant-1-and-5-gradient-values-between-1-and-infinity)
+  - [The rest of the octants: Dealing With Negativity](#the-rest-of-the-octants-dealing-with-negativity)
+  - [Sayonara Floating Points!](#sayonara-floating-points)
+- [Runtime Comparism Float and Integer Implementations](#runtime-comparism-float-and-integer-implementations)
+- [Conclusion](#conclusion)
+- [Notes](#notes)
+- [References](#references)
+- [CHECKS TO DO](#checks-to-do)
 
 # Introduction
 
@@ -35,8 +46,8 @@ Let's compare this to actually using a rasterization algorithm (Brehensam's Line
 __Figure 3: Line AB rasterized using Brehensam's Algorithm__
 
 
-# Good ol' Brehensam
-Let's take a look at the Brehensam Line Algorithm, a classic line rasterization algorithm still in great use today. It was developed in 1962 at IBM [1] for a [Calcomp Plotter](https://en.wikipedia.org/wiki/Calcomp_plotter). 
+Let's take a look at the Brehensam Line Algorithm, a classic line rasterization algorithm still in great use today. It was developed in 1962 at IBM [2] for a [Calcomp Plotter](https://en.wikipedia.org/wiki/Calcomp_plotter). 
+
 There are plenty of articles out there explaining the Brehensam Line Algorithm and there is a [particular one I like](https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html). I think he did a hella good job and I would like to build upon Colin's work and focus on the intuition which will lead us to the algorithm.
 
 Small note: Some articles tend to use the following coordinate frame, taking the top left as the origin (0,0), right as positive x direction, and downwards as the positive y direction.
@@ -51,7 +62,7 @@ To keep it visually intuitive. I will instead use the graph coordinate frame, an
 
 __Figure 5: Graph Coordinate Frame__
 
-## Problem Statement
+# What's The Problem?
 
 The problem statement is to represent a line from point A (x1, y1) to B (x2, y2) on a grid algorithmicallym, whilst keeping the error between the pixels plotted and the actual line to a minimum. We make the following assumptions:
 1. The start and end points coordinate are integers. 
@@ -120,7 +131,9 @@ __Figure 11: New error for picking (x+2, y)__
 
 Take note that the error always takes reference from the y coordinate of the currently choosen grid!
 
-# Pseudocode
+# Brehensam Pseudocode and Implementation
+
+## Focusing on Octant 2
 
 With the preceding concepts in place, we are ready to form our pseudocode:
 ```
@@ -198,9 +211,7 @@ Turns out our pseudo code only applies for the second octant, which is highlight
 
 __Figure 14: Octant 2 is highlighted here among the other octants__
 
-# What about the other 7 Octants?
-
-## Dealing with gradient values between 1 and INFINITY
+## Octant 1 and 5: Gradient values between 1 and INFINITY
 
 Lets solve for the case that we have a positive gradient value between 1 and infinity. There will be a few small changes made to the algorithm:
 
@@ -227,7 +238,7 @@ END FOR
 
 __Code Block 4: Brehensam Octant 1 Pseudocode__
 
-## Dealing with negativity
+## The rest of the octants: Dealing With Negativity
 
 We can use the easy trick of swapping the end and start points of the line, to make the gradient negative, but let's try another way around it.
 
@@ -322,7 +333,7 @@ __Figure 15: 12 Pointed Star Rasterized__
 
 ---
 
-# Floating point operations Shoo!
+## Sayonara Floating Points!
 
 So far everything we have talked about involves floating point operations, but that can be the bane of all evil when it comes to efficiency. So naturally we would want to simplify it to only perform integer based operations. 
 
@@ -443,7 +454,7 @@ __Figure 16: Flipped Octant model for image coordinate frame__
 
 --- 
 
-## Comparism between Floating Point and Integer Version
+# Runtime Comparism Float and Integer Implementations
 
 Now let's do some "dirty" comparism by utilising simple timers in our code segments. 
 
@@ -452,6 +463,8 @@ We shall draw a nice little house (The only one I might be able to afford given 
 <img src="../public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/house_raster.png" alt="house_raster.png" width="200"/>
 
 __Figure 17: Our little Raster House__
+
+TODO: Convert to dropdown
 
 ```
 0,20 -> 15,5; 1
@@ -487,32 +500,33 @@ Upon timing both implementations, we can see that the integer implementation doe
 
 __Figure 17: Comparism in elapsed run time between integer and float implementation__
 
-## Conclusion
+# Conclusion
 
-However, some of the issues that Brehensam face is the aliasing effect. The lines appear jagged up close and people do get sick of retro-looking graphics after a while. 
+Although Brehensam's algorithm fast and simple implementation has led to it's importance in many graphics library and even in the firmware of graphics card, there are numerous issues that it is not made to address. 
 
-Talk about Wu's algorithm and lead up to next article
+Namely, there is an aliasing effect for lines drawn using this algorithm. The lines appear jagged up close and people do get sick of retro-looking graphics after a while. This issue is solved by [Xiaolin Wu's Line Algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm), which performs anti-alising and handles cases where the endpoints of the line do not lie exactly on integer points of the pixel grid [3]. We will take a look at Wu's algorithm in Part 3.
+
+Secondly, we have not seen how Brehensam's Line Algorithm is able to raster curves, and that will be the focus of Part 2.
 
 
-## Notes
-- The source code for my Golang rasterization program is here
+# Notes
+- The source code for my [Golang rasterization program can be found here](https://github.com/JohnTGZ/Rasterization-GO)
 - Diagrams were made with [excalidraw](https://excalidraw.com/)
-- I tried to follow [3] for the pseudocode syntax.
+- I tried to follow [4] for the pseudocode syntax.
 - I have been trying to learn markdown formatting properly and [this guide helped me tremendously](https://gist.github.com/apaskulin/1ad686e42c7165cb9c22f9fe1e389558).
 - Please let me know if there are any inconsistencies or misstated facts at john_tanguanzhong@hotmail.com
 
-## References
-1. [Brehensam's Line Algorithm Pseudocode](https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html)
-2. [Paul E. Black. Dictionary of Algorithms and Data Structures, NIST.](https://xlinux.nist.gov/dads/HTML/bresenham.html)
+# References
+[1] [Brehensam's Line Algorithm Pseudocode](https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html)
 
+[2] [Paul E. Black. Dictionary of Algorithms and Data Structures, NIST.](https://xlinux.nist.gov/dads/HTML/bresenham.html)
 
-3. [An Introduction to Writing Good Pseudocode](https://towardsdatascience.com/pseudocode-101-an-introduction-to-writing-good-pseudocode-1331cb855be7)
+[3] [Wikipedia Entry for Xiaolin Wu's Line Algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm)
 
+[4] [An Introduction to Writing Good Pseudocode](https://towardsdatascience.com/pseudocode-101-an-introduction-to-writing-good-pseudocode-1331cb855be7)
 
-4. 
 
 # CHECKS TO DO
-
 1. Figures
    1. Are they numbered properly?
    2. Are they correct?
