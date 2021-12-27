@@ -20,7 +20,6 @@ I've been wanting to to code from scratch Brehensam line algorithm in Golang. Th
 - [Conclusion](#conclusion)
 - [Notes](#notes)
 - [References](#references)
-- [CHECKS TO DO](#checks-to-do)
 
 # Introduction
 
@@ -526,13 +525,3 @@ Secondly, we have not seen how Brehensam's Line Algorithm is able to raster curv
 [4] [An Introduction to Writing Good Pseudocode](https://towardsdatascience.com/pseudocode-101-an-introduction-to-writing-good-pseudocode-1331cb855be7)
 
 
-# CHECKS TO DO
-1. Figures
-   1. Are they numbered properly?
-   2. Are they correct?
-   3. Are the descriptions filled up?
-2. Table of contents
-   1. Are the headings done properly?
-3. Crediting
-   1. Are all sources credited properly?
-4. Add section links to reference to own figures and code blocks
