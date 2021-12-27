@@ -4,7 +4,7 @@ title: "Line Rasters Part 1 - Brehensam"
 ---
 
 Don't you think its fascinating how lines and circles are rendered on pixels?
-I've been wanting to to code from scratch Brehensam line algorithm in Golang. This is the 1st part of a 3 part article that deals with 
+I've been wanting to to code from scratch Brehensam line algorithm in Golang. This is the 1st part of a 3 part article that deals with line rasters, their shortcomings and what has been done to improve them.
 
 # Table of Contents
 
