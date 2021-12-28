@@ -449,7 +449,7 @@ __Code Block 8: Golang Implementation of Brehensam Integer__
 
 Note: If we are going to plot on images, we need to use the image coordinate frames Figure 4 instead of Figure 5. This means that the octant model in Figure 14 will be flipped vertically as shown in Figure 16.
 
-<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octants_flipped.png" alt="Flipped Octant model for image coordinate frame" width="250"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/octants_flipped.png" alt="Flipped Octant model for image coordinate frame" width="350"/>
 
 __Figure 16: Flipped Octant model for image coordinate frame__
 
