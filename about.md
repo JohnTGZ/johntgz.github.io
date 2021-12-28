@@ -11,6 +11,7 @@ Lee Iacocca once remarked that “We are continually faced by great opportunitie
 
 ### Globotix
 #### Robotics Software Engineer (2021 - Present)
+- Currently building the software stack for the next generation of cleaning robots.
 
 ### Movel AI
 #### Robotics Software Engineer (2020 - 2021)
@@ -35,6 +36,7 @@ Lee Iacocca once remarked that “We are continually faced by great opportunitie
 ### National University of Singapore
 #### Bachelor of Engineering - BE, Mechanical Engineering (2016 - 2020)
 - Activities
+    - NUS Overseas College (Israel)
     - Financial Secretary (for College of Alice and Peter Tan Neighborhood Committee) 
     - Programmes Committee member (Overseas Service Learning Bangalore) 
     - Inter-College Games 2017 
