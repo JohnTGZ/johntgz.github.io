@@ -465,7 +465,6 @@ We shall draw a nice little house (The only one I might be able to afford given 
 
 __Figure 17: Our little Raster House__
 
-TODO: Convert to dropdown
 
 ```
 0,20 -> 15,5; 1
