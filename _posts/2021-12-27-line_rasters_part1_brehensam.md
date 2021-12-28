@@ -114,6 +114,7 @@ Similarly, we will only plot on (x+2, y) if:
 After plotting on each increment of x, we notice that now the error has changed, and how the error changes depends on whether we pick (x+2, y+1) or (x+2, y).
 If we pick (x+2, y+1), the new error is now:
 > **e_new** = (y + e_old + m) - (y + 1)
+> 
 > **e_new** = e_old + m - 1
 
 <img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_3a.png" alt="brehensam_3a" width="375"/>
@@ -122,6 +123,7 @@ __Figure 10: New error for picking (x+2, y+1)__
 
 If we pick (x+2, y), the new error is now:
 > **e_new** = (y + e_old + m) - (y)
+> 
 > **e_new** = e_old + m
 
 <img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_3b.png" alt="brehensam_3b" width="375"/>
