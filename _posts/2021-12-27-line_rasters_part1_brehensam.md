@@ -4,19 +4,19 @@ title: "Line Rasters Part 1 - Brehensam"
 ---
 
 Don't you think its fascinating how lines and circles are rendered on pixels?
-I've been wanting to to code from scratch Brehensam line algorithm in Golang. This is the 1st part of a 3 part article that deals with line rasters, their shortcomings and what has been done to improve them.
+I've been wanting to implement some rasterisation algorithms in Golang. This is the 1st part of a 3 part article that deals with line rasters, their shortcomings and what has been done to improve them.
 
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
 - [What's The Problem?](#whats-the-problem)
-- [Brehensam Pseudocode and Implementation](#brehensam-pseudocode-and-implementation)
+- [Brehensam Pseudo code and Implementation](#brehensam-pseudo-code-and-implementation)
   - [Focusing on Octant 2](#focusing-on-octant-2)
   - [Octant 1 and 5: Gradient values between 1 and INFINITY](#octant-1-and-5-gradient-values-between-1-and-infinity)
   - [The rest of the octants: Dealing With Negativity](#the-rest-of-the-octants-dealing-with-negativity)
   - [Sayonara Floating Points!](#sayonara-floating-points)
-- [Runtime Comparism Float and Integer Implementations](#runtime-comparism-float-and-integer-implementations)
+- [Runtime comparison Float and Integer Implementations](#runtime-comparison-float-and-integer-implementations)
 - [Conclusion](#conclusion)
 - [Notes](#notes)
 - [References](#references)
@@ -63,7 +63,7 @@ __Figure 5: Graph Coordinate Frame__
 
 # What's The Problem?
 
-The problem statement is to represent a line from point A (x1, y1) to B (x2, y2) on a grid algorithmicallym, whilst keeping the error between the pixels plotted and the actual line to a minimum. We make the following assumptions:
+The problem statement is to represent a line from point A (x1, y1) to B (x2, y2) on a grid algorithmically, whilst keeping the error between the pixels plotted and the actual line to a minimum. We make the following assumptions:
 1. The start and end points coordinate are integers. 
 2. We will only be incrementing x as we plot the line. 
 
@@ -76,7 +76,7 @@ Brehensam's algorithm will be alternating between these 2 choices for the first 
 
 <img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_1a.png" alt="brehensam_1a" width="400"/>
 
-__Figure 7: Pixelize (x+1, y)__
+__Figure 7: Do we pixelize (x+1, y)__
 
 <img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/brehensam_1b.png" alt="brehensam_1b" width="400"/>
 
@@ -128,13 +128,13 @@ If we pick (x+2, y), the new error is now:
 
 __Figure 11: New error for picking (x+2, y)__
 
-Take note that the error always takes reference from the y coordinate of the currently choosen grid!
+Take note that the error always takes reference from the y coordinate of the currently chosen grid!
 
-# Brehensam Pseudocode and Implementation
+# Brehensam Pseudo code and Implementation
 
 ## Focusing on Octant 2
 
-With the preceding concepts in place, we are ready to form our pseudocode:
+With the preceding concepts in place, we are ready to form our pseudo code:
 ```
 # Set error to zero
 e = 0 
@@ -156,9 +156,9 @@ FOR x = x1 to x2
 END FOR
 ```
 
-__Code Block 1: Brehensam's Line Algorithm for Octant 2 Pseudocode__
+__Code Block 1: Brehensam's Line Algorithm for Octant 2 Pseudo code__
 
-You can try implementing the above in your favourite programming language, but for now let's try implementing this in Golang! 
+You can try implementing the above in your favorite programming language, but for now let's try implementing this in Golang! 
 
 ```
 //GOLANG IMPLEMENTATION
@@ -235,7 +235,7 @@ FOR y = y1 to y2
 END FOR
 ```
 
-__Code Block 4: Brehensam Octant 1 Pseudocode__
+__Code Block 4: Brehensam pseudo code octant 1 __
 
 ## The rest of the octants: Dealing With Negativity
 
@@ -255,12 +255,12 @@ FOR x = x1 to x2
 END FOR
 ```
 
-__Code Block 5: Brehensam Octant 3 Pseudocode__
+__Code Block 5: Brehensam Pseudo code Octant 3 __
 
 This can similarly be applied to gradient values where -INFINITY < m < 1.
 
 
-Now, we can reduce the pseudocode above to as little lines as possible and implement this in golang:
+Now, we can reduce the pseudo code above to as little lines as possible and implement this in golang:
 
 <details>
 <summary> <b> Golang Implementation of Brehensam Float </b> </summary>
@@ -368,7 +368,7 @@ For **equation (3)**, the same thing:
 > 
 > __e' = e' + dy - dx__  *(6)*
 
-Now our new pseudocode for octant 2 becomes:
+Now our new pseudo code for octant 2 becomes:
 ```
 e = 0 
 y = y1
@@ -387,7 +387,7 @@ FOR x = x1 to x2
     END IF
 END FOR
 ```
-__Code Block 7: Brehensam Integer Version (Octant 2) Pseudocode__
+__Code Block 7: Brehensam Integer Version (Octant 2) Pseudo code__
 
 Implementing this in Golang...
 
@@ -453,11 +453,11 @@ __Figure 16: Flipped Octant model for image coordinate frame__
 
 --- 
 
-# Runtime Comparism Float and Integer Implementations
+# Runtime comparison Float and Integer Implementations
 
-Now let's do some "dirty" comparism by utilising simple timers in our code segments. 
+Now let's do some "dirty" comparison by utilizing simple timers in our code segments. 
 
-We shall draw a nice little house (The only one I might be able to afford given the housing situation in Singpoare), and compare the time required to draw it using the integer and floating point version of Brehensam (Code block 6 and 8 respectively).
+We shall draw a nice little house (The only one I might be able to afford given the housing situation in Singapore), and compare the time required to draw it using the integer and floating point version of Brehensam (Code block 6 and 8 respectively).
 
 <img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/house_raster.png" alt="house_raster.png" width="200"/>
 
@@ -497,13 +497,13 @@ Upon timing both implementations, we can see that the integer implementation doe
 
 <img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/comparism_float_int_brehensam.png" alt="comparism_float_int_brehensam.png" width="400"/>
 
-__Figure 17: Comparism in elapsed run time between integer and float implementation__
+__Figure 17: Comparison in elapsed run time between integer and float implementation__
 
 # Conclusion
 
 Although Brehensam's algorithm fast and simple implementation has led to it's importance in many graphics library and even in the firmware of graphics card, there are numerous issues that it is not made to address. 
 
-Namely, there is an aliasing effect for lines drawn using this algorithm. The lines appear jagged up close and people do get sick of retro-looking graphics after a while. This issue is solved by [Xiaolin Wu's Line Algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm), which performs anti-alising and handles cases where the endpoints of the line do not lie exactly on integer points of the pixel grid [3]. We will take a look at Wu's algorithm in Part 3.
+Namely, there is an aliasing effect for lines drawn using this algorithm. The lines appear jagged up close and people do get sick of retro-looking graphics after a while. This issue is solved by [Xiaolin Wu's Line Algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm), which performs anti-aliasing and handles cases where the endpoints of the line do not lie exactly on integer points of the pixel grid [3]. We will take a look at Wu's algorithm in Part 3.
 
 Secondly, we have not seen how Brehensam's Line Algorithm is able to raster curves, and that will be the focus of Part 2.
 
@@ -511,17 +511,17 @@ Secondly, we have not seen how Brehensam's Line Algorithm is able to raster curv
 # Notes
 - The source code for my [Golang rasterization program can be found here](https://github.com/JohnTGZ/Rasterization-GO)
 - Diagrams were made with [excalidraw](https://excalidraw.com/)
-- I tried to follow [4] for the pseudocode syntax.
+- I tried to follow [4] for the pseudo code syntax.
 - I have been trying to learn markdown formatting properly and [this guide helped me tremendously](https://gist.github.com/apaskulin/1ad686e42c7165cb9c22f9fe1e389558).
 - Please let me know if there are any inconsistencies or misstated facts at john_tanguanzhong@hotmail.com
 
 # References
-[1] [Brehensam's Line Algorithm Pseudocode](https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html)
+[1] [Brehensam's Line Algorithm Pseudo code](https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html)
 
 [2] [Paul E. Black. Dictionary of Algorithms and Data Structures, NIST.](https://xlinux.nist.gov/dads/HTML/bresenham.html)
 
 [3] [Wikipedia Entry for Xiaolin Wu's Line Algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm)
 
-[4] [An Introduction to Writing Good Pseudocode](https://towardsdatascience.com/pseudocode-101-an-introduction-to-writing-good-pseudocode-1331cb855be7)
+[4] [An Introduction to Writing Good Pseudo code](https://towardsdatascience.com/pseudocode-101-an-introduction-to-writing-good-pseudocode-1331cb855be7)
 
 
