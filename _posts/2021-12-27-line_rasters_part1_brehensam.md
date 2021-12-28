@@ -466,7 +466,9 @@ We shall draw a nice little house (The only one I might be able to afford given 
 __Figure 17: Our little Raster House__
 
 
-```
+<details>
+<summary> <b> Input for drawing the house </b> </summary>
+<pre>
 0,20 -> 15,5; 1
 15,5 -> 30,40; 2
 30,40 -> 0,20; 3
@@ -490,7 +492,9 @@ __Figure 17: Our little Raster House__
 95,75 -> 95,55; window b2
 95,55 -> 70,57; window b3
 70,57 -> 70,77; window b4
-```
+</pre>
+</details>
+
 __Code Block 9: Input used to draw house__
 
 
