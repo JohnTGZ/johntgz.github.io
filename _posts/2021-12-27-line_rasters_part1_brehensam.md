@@ -500,7 +500,7 @@ __Code Block 9: Input used to draw house__
 
 Upon timing both implementations, we can see that the integer implementation does outperform the float implementation although seemingly not by much, but that might be because we did not use large data input sizes.
 
-<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/comparism_float_int_brehensam.png" alt="comparism_float_int_brehensam.png" width="400"/>
+<img src="/public/assets/2021-12-24-battle_of_lines_brehensam/brehensam_algo/comparism_float_int_brehensam.png" alt="comparism_float_int_brehensam.png" width="500"/>
 
 __Figure 17: Comparison in elapsed run time between integer and float implementation__
 
