@@ -241,7 +241,7 @@ __Code Block 4: Brehensam pseudo code octant 1 __
 
 ## The rest of the octants: Dealing With Negativity
 
-We can use the easy trick of swapping the end and start points of the line, to make the gradient negative, but let's try another way around it.
+We can use the easy trick of swapping the end and start points of the line, to make the gradient positive, but this means that we are going to be tracing our line from the end point to the start point and it feels like kinda cheap. Let's try another way around it.
 
 ```
 #...
