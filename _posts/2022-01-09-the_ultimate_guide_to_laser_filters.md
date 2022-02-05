@@ -3,6 +3,8 @@ layout: post
 title: "The Ultimate ROS1 Guide to Laser Filters"
 ---
 
+#TODO Link each pseudocode to the right line in the source code files
+
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
@@ -21,6 +23,8 @@ title: "The Ultimate ROS1 Guide to Laser Filters"
   - [LaserScanAngularBoundsFilter](#laserscanangularboundsfilter)
     - [Use Cases](#use-cases-2)
     - [Parameters](#parameters-2)
+    - [Pseudocode](#pseudocode-2)
+      - [*Update Function*](#update-function-2)
   - [LaserScanAngularBoundsFilterInPlace](#laserscanangularboundsfilterinplace)
     - [Parameters](#parameters-3)
   - [LaserScanSectorFilter](#laserscansectorfilter)
@@ -28,40 +32,44 @@ title: "The Ultimate ROS1 Guide to Laser Filters"
   - [InterpolationFilter](#interpolationfilter)
     - [Use Cases](#use-cases-3)
     - [Parameters](#parameters-5)
-    - [Pseudocode](#pseudocode-2)
-      - [*Update Function*](#update-function-2)
+    - [Pseudocode](#pseudocode-3)
+      - [*Update Function*](#update-function-3)
   - [LaserScanFootprintFilter](#laserscanfootprintfilter)
     - [Use Cases](#use-cases-4)
     - [Parameters](#parameters-6)
-    - [Pseudocode](#pseudocode-3)
-      - [*Update Function*](#update-function-3)
+    - [Pseudocode](#pseudocode-4)
+      - [*Update Function*](#update-function-4)
+      - [*indexChannel Function*](#indexchannel-function)
+      - [*inFootprint Function*](#infootprint-function)
   - [LaserScanBoxFilter](#laserscanboxfilter)
     - [Use Cases](#use-cases-5)
     - [Parameters](#parameters-7)
-    - [Pseudocode](#pseudocode-4)
-      - [*Update Function*](#update-function-4)
+    - [Pseudocode](#pseudocode-5)
+      - [*Update Function* : Updates each laser scan message](#update-function--updates-each-laser-scan-message)
+      - [*inBox Function* : Checks if scan point is within 3D cartesian box](#inbox-function--checks-if-scan-point-is-within-3d-cartesian-box)
   - [LaserScanPolygonFilter](#laserscanpolygonfilter)
     - [Use Cases](#use-cases-6)
     - [Parameters](#parameters-8)
-    - [Pseudocode](#pseudocode-5)
+    - [Pseudocode](#pseudocode-6)
       - [*Update Function*](#update-function-5)
   - [LaserScanMaskFilter](#laserscanmaskfilter)
     - [Parameters](#parameters-9)
-    - [Pseudocode](#pseudocode-6)
+    - [Pseudocode](#pseudocode-7)
   - [ScanShadowsFilter](#scanshadowsfilter)
     - [Parameters](#parameters-10)
-    - [Pseudocode](#pseudocode-7)
+    - [Pseudocode](#pseudocode-8)
       - [*Update Function*](#update-function-6)
       - [*isShadow Function*](#isshadow-function)
   - [ScanBlobFilter](#scanblobfilter)
     - [Parameters](#parameters-11)
-    - [Pseudocode](#pseudocode-8)
+    - [Pseudocode](#pseudocode-9)
       - [*Update Function*](#update-function-7)
   - [LaserScanSpeckleFilter](#laserscanspecklefilter)
     - [Parameters](#parameters-12)
-    - [Pseudocode](#pseudocode-9)
+    - [Pseudocode](#pseudocode-10)
       - [*Update Function*](#update-function-8)
   - [pass_through filter](#pass_through-filter)
+- [Afterthoughts](#afterthoughts)
 - [Notes](#notes)
 - [References](#references)
 
@@ -109,7 +117,7 @@ The intensity filter could be used to extract laser scan points within a range o
 ```python 
 FUNCTION Update(scan)
 
-  FOR each i IN RANGE (0, scan.ranges.size) # For each point in laser scan
+  FOR each i IN RANGE (0, scan.ranges.size) # For each laser scan point
     #Intensity and range are modified in place here
     intensity = scan.intensities[i]
     range = scan.ranges[i]
@@ -149,23 +157,36 @@ The range filter could be used to "remove" laser scan points that are below or b
 - name: range_filter
   type: laser_filters/LaserScanRangeFilter
   params:
-    use_message_range_limits: false   # if not specified defaults to false
+    use_message_range_limits: false   # If false, use the threshold specified here, else use the range limits in the scan message
     lower_threshold: 0.075            # if not specified defaults to 0.0
     upper_threshold: 24.0             # if not specified defaults to 100000.0
-    lower_replacement_value: .inf     # if not specified defaults to NaN
-    upper_replacement_value: .inf     # if not specified defaults to NaN
+    lower_replacement_value: .inf     # Replacement value for scans below lower_threshold, if not specified defaults to NaN
+    upper_replacement_value: .inf     # Replacement value for scans above upper_threshold, if not specified defaults to NaN
 ```
 
 ### Pseudocode
 
 #### *Update Function*
 ```python 
-FUNCTION Update(scan)
+FUNCTION Update(scan_in, scan_out)
 
-  FOR each i IN RANGE (0, scan.ranges.size) # For each point in laser scan
-    intensity = scan.intensities[i]
-    range = scan.ranges[i]
-    
+  lower_threshold = config.lower_threshold
+  upper_threshold = config.upper_threshold
+
+  IF (config.use_message_range_limits)
+    lower_threshold = scan_in.range_min
+    upper_threshold = scan_in.range_max
+  ENDIF
+  
+  scan_out = scan_in #Copy input scans to output scans
+
+  FOR i in range(0, scan_in.ranges.size) # For each laser scan point
+    #Assign replacement values for scan ranges outside the specified threshold
+    IF (scan_out.ranges[i] <= lower_threshold)
+      scan_out.ranges[i] = config.lower_replacement_value
+    ELSE IF (scan_out.ranges[i] >= upper_threshold)
+      scan_out.ranges[i] = config.upper_replacement_value
+    ENDIF
 
   ENDFOR
 
@@ -186,6 +207,91 @@ The angular bounds filter could be used to remove scan points that might be inte
     lower_angle: -1.571 
     upper_angle: 1.571 
 ```
+
+### Pseudocode
+
+#### *Update Function*
+```python 
+FUNCTION Update(scan_in, scan_out)
+  scan_out = scan_in #Copy input scans to output scans
+
+  start_angle = scan_in.angle_min
+  current_angle = scan_in.angle_min
+
+  start_time = scan_in.header.stamp
+  count = 0
+
+  FOR i in range(0, scan_in.ranges.size) # For each laser scan point
+    IF scan_in.angle_increment > 0 #If lidar turns counter-clockwise
+      #If starting angle is outside the specified angular bounds, then increment the range index until it is within.
+      IF start_angle < config.lower_angle 
+        start_angle += scan_in.angle_increment
+        current_angle += scan_in.angle_increment
+        start_time += scan_in.time_increment
+      ELSE 
+        scan_out.ranges[count] = scan_in.ranges[i]
+  
+        #Don't update intensity data if it's not available
+        IF scan_in.intensities.size() > i
+          scan_out.intensities[count] = scan_in.intensities[i]
+        ENDIF
+
+        count++ #Increment index of scan_out
+
+        #Break out of loop if next increment is beyond the upper angular bounds
+        IF current_angle + scan_in.angle_increment > upper_angle
+          break
+        ENDIF
+        
+        current_angle += scan_in.angle_increment
+      ENDIF
+
+    ELSE #Lidar turns clockwise
+      #If starting angle is outside the specified angular bounds, then increment the range index until it is within.
+      IF start_angle > config.upper_angle 
+        start_angle += scan_in.angle_increment
+        current_angle += scan_in.angle_increment
+        start_time += scan_in.time_increment
+      ELSE 
+        scan_out.ranges[count] = scan_in.ranges[i]
+  
+        #Don't update intensity data if it's not available
+        IF scan_in.intensities.size() > i
+          scan_out.intensities[count] = scan_in.intensities[i]
+        ENDIF
+
+        count++ #Increment index of scan_out
+
+        #Break out of loop if next increment is beyond the upper angular bounds
+        IF current_angle + scan_in.angle_increment < lower_angle
+          break
+        ENDIF
+        
+        current_angle += scan_in.angle_increment
+      ENDIF
+    ENDIF
+  ENDFOR
+
+  #Assign the fields for metadata of the scans
+  scan_out.header.frame_id = scan_in.header.frame_id
+  scan_out.header.stamp = start_time
+  scan_out.angle_min = start_angle
+  scan_out.angle_max = current_angle
+  scan_out.angle_increment = scan_in.angle_increment
+  scan_out.time_increment = scan_in.time_increment
+  scan_out.scan_time = scan_in.scan_time
+  scan_out.range_min = scan_in.range_min
+  scan_out.range_max = scan_in.range_max
+
+  #Resize output scan to the reduced size after filtering
+  scan_out.ranges.resize(count)
+  if(scan_in.intensities.size() >= count)
+    scan_out.intensities.resize(count)
+
+
+ENDFUNCTION
+```
+****
 
 ## LaserScanAngularBoundsFilterInPlace
 Works in a similar way to LaserScanAngularBoundsFilter. It removes points in a sensor_msgs/LaserScan INSIDE certain angular bounds by changing the minimum and maximum angle. 
@@ -237,7 +343,7 @@ FUNCTION Update(scan_in, scan_out)
   previous_valid_range = scan_in.range_max - 0.01
   next_valid_range = scan_in.range_max - 0.01
 
-  scan_out = scan_in
+  scan_out = scan_in #Copy input scans to output scans
 
   WHILE i < scan_in.ranges.size #Iterate through all the scan points 
 
@@ -256,7 +362,7 @@ FUNCTION Update(scan_in, scan_out)
         ELSE
           #Break out of while loop when a valid range is found
           next_valid_range = scan_out.ranges[j]
-          BREAK
+          break
         ENDIF
         
         j++
@@ -300,18 +406,72 @@ The range filter could be used to "remove" laser scan points within the physical
 ```
 
 ### Pseudocode
+The footprint filter is one of those filters that first convert the laser scans to (x, y) cartesian space before "removing" points.
 
 #### *Update Function*
 ```python 
-FUNCTION Update(scan)
+FUNCTION Update(scan_in, scan_out)
 
-  FOR each i IN RANGE (0, scan.ranges.size) # For each point in laser scan
-    intensity = scan.intensities[i]
-    range = scan.ranges[i]
-    
+  scan_out = scan_in #Copy input scans to output scans
 
+  #Transform input laser scan (scan_in) to point cloud (laser_cloud) with the frame of "base_link"
+  projector_.transformLaserScanToPointCloud("base_link", scan_in, laser_cloud, tf_) # tf_ here is the tf::TransformListener 
+
+  #Get the index of the "index" channel which contains an array that matches each scan point to the index of the laser scan, the array can be accessed via scan_cloud.channels[c_idx].values
+  c_idx = indexChannel(laser_cloud)
+
+  #If the "index" channel does not exist or is empty, then ignore scan
+  IF c_idx == -1 OR laser_cloud.channels[c_idx].values.size () == 0
+    return False
+  ENDIF
+
+  #Iterate through each laser point cloud
+  FOR i in range(0, laser_cloud.points.size)
+    #If point cloud is within the footprint, then "remove" it by setting to NaN
+    IF (inFootprint(laser_cloud.points[i]))
+      #Obtain the laser scan index that corresponds to the point cloud
+      index = laser_cloud.channels[c_idx].values[i]
+      scan_out.ranges[index] = NaN
+    ENDIF
   ENDFOR
 
+  up_and_running_ = True
+
+ENDFUNCTION
+```
+
+#### *indexChannel Function*
+```python
+FUNCTION indexChannel(scan_cloud)
+  c_idx = -1
+  # Iterate through the channels array until an "index" channel is found
+  FOR d in range(0, scan_cloud.channels.size)
+    # This "index" channel contains an array that matches each scan point to the index of the laser scan, the array can be accessed via scan_cloud.channels[c_idx].values
+    IF scan_cloud.channels[d].name == "index"
+      c_idx = d
+      break
+    ENDIF
+  ENDFOR
+
+  return c_idx
+ENDFUNCTION
+```
+
+#### *inFootprint Function*
+```python
+FUNCTION inFootprint(scan_pt)
+  #Get flags on whether the individual x or y coordinates are within the footprint radius
+  x_a = scan_pt.x < -1.0 * config.inscribed_radius
+  x_b = scan_pt.x > config.inscribed_radius
+  y_a = scan_pt.y < -1.0 * config.inscribed_radius
+  y_b = scan_pt.y > config.inscribed_radius
+
+  #If the (x,y) point is outside the footprint
+  IF x_a OR x_b OR y_a OR y_b
+    return False
+  ENDIF
+
+  return True
 ENDFUNCTION
 ```
 
@@ -340,16 +500,92 @@ The range filter could be used to "remove" laser scan points within the physical
 
 ### Pseudocode
 
-#### *Update Function*
+#### *Update Function* : Updates each laser scan message
 ```python 
-FUNCTION Update(scan)
+FUNCTION Update(scan_in, scan_out)
 
-  FOR each i IN RANGE (0, scan.ranges.size) # For each point in laser scan
-    intensity = scan.intensities[i]
-    range = scan.ranges[i]
-    
+  scan_out = scan_in #Copy input scans to output scans
+
+  #Wait for transform from config.box_frame to scan_in frame to be available
+
+  #Transform input laser scan (scan_in) to point cloud (laser_cloud), with the point cloud having frame_id of the user-defined box_frame
+  projector_.transformLaserScanToPointCloud(config.box_frame, scan_in, laser_cloud, tf_) # tf_ here is the tf::TransformListener 
+
+  # Obtain field indexes for the point cloud index, x, y and z fields
+  # They match each scan point to the index of each laser scan
+  i_idx_c = sensor_msgs::getPointCloud2FieldIndex(laser_cloud, "index") 
+  x_idx_c = sensor_msgs::getPointCloud2FieldIndex(laser_cloud, "x") 
+  y_idx_c = sensor_msgs::getPointCloud2FieldIndex(laser_cloud, "y")
+  z_idx_c = sensor_msgs::getPointCloud2FieldIndex(laser_cloud, "z")
+
+  #Ignore scan if any of the required fields do not exist
+  IF i_idx_c == -1 OR x_idx_c == -1 OR y_idx_c == -1 OR z_idx_c == -1
+    return False
+  ENDIF
+
+  # Get offset from start of point struct, used as starting index
+  i_idx_offset = laser_cloud.fields[i_idx_c].offset 
+  x_idx_offset = laser_cloud.fields[x_idx_c].offset
+  y_idx_offset = laser_cloud.fields[y_idx_c].offset
+  z_idx_offset = laser_cloud.fields[z_idx_c].offset
+
+  pstep = laser_cloud.point_step #Length of a point in bytes
+  pcount = laser_cloud.width * laser_cloud.height #Number of counts
+  limit = pstep * pcount #Maximum byte length
+
+  #Set starting index to that of the offset
+  i_idx = i_idx_offset
+  x_idx = x_idx_offset
+  y_idx = y_idx_offset
+  z_idx = z_idx_offset
+
+  #Iterate through the points until the end
+  FOR x_idx < limit
+
+    x = laser_cloud.data[x_idx]
+    y = laser_cloud.data[y_idx]
+    z = laser_cloud.data[z_idx]
+    index = laser_cloud.data[i_idx]
+
+    point = tf::Point(x, y, z)
+
+    #If not inverting, then simply "remove" points within the 3d cartesian box
+    #Else "remove" points outside the box
+    IF NOT config.invert 
+      IF inBox(point)
+        output_scan.ranges[index] = NaN
+      ENDIF
+    ELSE
+      IF NOT inBox(point)
+        output_scan.ranges[index] = NaN
+      ENDIF
+    ENDIF
+
+    #Step through to next index
+    i_idx += pstep
+    x_idx += pstep
+    y_idx += pstep
+    z_idx += pstep
 
   ENDFOR
+
+  up_and_running_ = True
+
+ENDFUNCTION
+```
+
+#### *inBox Function* : Checks if scan point is within 3D cartesian box
+```python
+FUNCTION inBox(point)
+  #Flags to indicate if each point coordinate is within the defined box limits
+  a = point.x < config.max_x
+  b = point.x > config.min_x
+  c = point.y < config.max_y
+  d = point.y > config.min_y
+  e = point.z < config.max_z
+  f = point.z > config.min_z
+
+  return a AND b AND c AND d AND e AND f
 
 ENDFUNCTION
 ```
@@ -487,15 +723,15 @@ FUNCTION isShadow(range_a, range_b, sin_alpha, cos_alpha)
 
   IF (perpendicular_tan > 0)
     IF (perpendicular_tan < tan(config.MIN_ANGLE)) 
-      return TRUE
+      return True
     ENDIF
   ELSE
     IF (perpendicular_tan > tan(config.MAX_ANGLE)) 
-      return TRUE
+      return True
     ENDIF
   ENDIF
   
-  return FALSE
+  return False
 
 ENDFUNCTION
 ```
@@ -578,11 +814,18 @@ FUNCTION Update(scan)
 
 ENDFUNCTION
 ```
+
 ## pass_through filter
 There is no documentation available nor does they seem to be an implementation of it in the source code, save for an empty example in "examples/pass_through_example.xml"
+
+
+# Afterthoughts
+Going through the source code of each laser filter has imbued me a renewed appreciation of laser_filter's simplicity yet some of the filters have led me to questioned if such implementation can be improved in it's efficiency. Yes there are several error checking mechanisms built into each laser scan but I believe that these checks could have been done at the initialization stage (after waiting for the first laser scan message to arrive), and need not be repeated at each update step, given that the laser scan meta-data is highly unlikely to change during run time. 
+Furthermore, some of the filters could benefit from the use of dynamic reconfigure. And perhaps the ability to turn on/off certain laser filters within the laser filter chain would also be extremely useful for actions such as docking.
 
 # Notes
 
 # References
 [1] [ROS Wiki: Laser Filters](http://wiki.ros.org/laser_filters)
+
 [2] [ROS Wiki: Laser filtering using the filter nodes](http://wiki.ros.org/laser_filters/Tutorials/Laser%20filtering%20using%20the%20filter%20nodes#:~:text=Laser%20scans%20sometimes%20hit%20objects,grazed%20and%20a%20background%20object.)
