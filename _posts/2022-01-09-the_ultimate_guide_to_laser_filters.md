@@ -888,25 +888,24 @@ ENDFUNCTION
 
   We would like to obtain the angle THETA, which is formed by the intersection of scan point A to B and the lidar to scan point A. The angle THETA provides us with information about how relatively far apart are the 2 objects (A and B) seen by the lidar. The calculations to get there is shown below:
 
-  <img src="../public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/shadow/shadow_diagram1.png" alt="shadow_diagram1.png" width="300"/>
+  <img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/shadow/shadow_diagram1.png" alt="shadow_diagram1.png" width="300"/>
 
   __Figure X: Shadow Filter Visual Explaination__
 
-  <img src="../public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/shadow/shadow_eqn1.png" alt="shadow_eqn1.png" width="330"/>
+  <img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/shadow/shadow_eqn1.png" alt="shadow_eqn1.png" width="330"/>
 
-  <img src="../public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/shadow/shadow_eqn2.png" alt="shadow_eqn2.png" width="250"/>
+  <img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/shadow/shadow_eqn2.png" alt="shadow_eqn2.png" width="250"/>
 
-  <img src="../public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/shadow/shadow_eqn3.png" alt="shadow_eqn3.png" width="200"/>
+  <img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/shadow/shadow_eqn3.png" alt="shadow_eqn3.png" width="200"/>
 
 
 ## ScanBlobFilter
 The scan blob filter is useful for extracting “blob objects” which means that racks, human legs can be detected effectively (at close distances).
-<!-- Ideally, it should be used after being filtered with shadow filters as the filter works by identifying group of points separated by nan values -->
 The minimum points and maximum radius must be tuned so that we only obtain blobs of our desired objects and exclude others. For example, you want to only extract chair legs and not human legs, you would specify a smaller *max_radius* and smaller *min_points*.
 
 *Important Note* : This filter is used after the ScanShadowsFilter, as it assumes that each blob would be separated by invalid scan data (Either NaN or Negative range value)
 
-<img src="../public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/scan-blob-visualization.png" alt="scan-blob-visualization" width="400"/>
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/scan-blob-visualization.png" alt="scan-blob-visualization" width="400"/>
 
 __Figure X: [Scan Blob Visualization](https://github.com/ros-perception/laser_filters/pull/80) __
 
