@@ -5,8 +5,6 @@ title: "[WIP] The Ultimate ROS1 Guide to Laser Filters"
 
 This article is still a work in progress, come back at the end of February 2022 to check it out :)
 
-#TODO Link each pseudocode to the right line in the source code files
-
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
