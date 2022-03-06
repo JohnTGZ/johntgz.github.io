@@ -3,7 +3,7 @@ layout: post
 title: "[WIP] The Ultimate ROS1 Guide to Laser Filters"
 ---
 
-This article is still a work in progress, come back at the end of February 2022 to check it out :)
+This article is still a work in progress, come back at the end of March 2022 to check it out :)
 
 # Table of Contents
 
@@ -100,11 +100,11 @@ This filter removes all measurements from the sensor_msgs/LaserScan which have a
 
 Take note that setting **filter_override_intensity** to true will assign all "removed" points the intensity of 0.0, and all non-"removed" points to have an intensity value of 1.0 .
 
-  ### Use Cases
+### Use Cases
 The intensity filter could be used to extract laser scan points within a range of intensities especially for applications in robot docking, or even SLAM. Some docking stations possess reflective markers which the lidar will perceive as high intensity scan points, which when extracted and processed could provide an indication of the angular and linear offset of the robot relative to the docking station.
 
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: intensity
   type: laser_filters/LaserScanIntensityFilter
@@ -116,9 +116,9 @@ The intensity filter could be used to extract laser scan points within a range o
     filter_override_intensity: false #If true, set all "removed" points to have intensity of 0.0, and set all non-"removed" points to have intensity of 1.0
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/src/intensity_filter.cpp#L66-L106)
 ```python 
 FUNCTION Update(scan)
@@ -155,10 +155,10 @@ ENDFUNCTION
 ## LaserScanRangeFilter
 This filter removes all measurements from the sensor_msgs/LaserScan which are greater than upper_threshold or less than lower_threshold. 
 
-  ### Use Cases
+### Use Cases
 The range filter could be used to "remove" laser scan points that are below or beyond the usable lidar range (usually defined in the technical datasheet of the lidar). This is important to prevent erroneous readings from being used in the marking/clearing of obstacles from the costmap of the navigation stack.
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: range_filter
   type: laser_filters/LaserScanRangeFilter
@@ -170,9 +170,9 @@ The range filter could be used to "remove" laser scan points that are below or b
     upper_replacement_value: .inf     # Replacement value for scans above upper_threshold, if not specified defaults to NaN
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/range_filter.h#L82-L110)
 ```python 
 FUNCTION Update(scan_in, scan_out)
@@ -203,21 +203,21 @@ ENDFUNCTION
 ## LaserScanAngularBoundsFilter
 Removes points in a [sensor_msgs/LaserScan](http://docs.ros.org/en/api/sensor_msgs/html/msg/LaserScan.html) OUTSIDE of certain angular bounds by changing the minimum and maximum angle. All angular units are in radians.
 
-  ### Use Cases
+### Use Cases
 The angular bounds filter could be used to remove scan points that might be intersecting with the physical robot base, which are mistaken as obstacles by the navigation stack.
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: angular_bounds
   type: laser_filters/LaserScanAngularBoundsFilter
   params:
-    lower_angle: -1.571 
-    upper_angle: 1.571 
+    lower_angle: -1.571 #Clockwise from z axis of lidar
+    upper_angle: 1.571 #Anti-clockwise from z axis of lidar
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/angular_bounds_filter.h#L66-L146)
 ```python 
 FUNCTION Update(scan_in, scan_out)
@@ -304,19 +304,19 @@ ENDFUNCTION
 ## LaserScanAngularBoundsFilterInPlace
 Works in a similar way to LaserScanAngularBoundsFilter. It removes points in a sensor_msgs/LaserScan INSIDE certain angular bounds by changing the minimum and maximum angle. 
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: angular_bounds
   type: laser_filters/LaserScanAngularBoundsFilterInPlace
   params:
-    lower_angle: -1.571 
-    upper_angle: 1.571 
+    lower_angle: -1.571 #Clockwise from z axis of lidar
+    upper_angle: 1.571 #Anti-clockwise from z axis of lidar
 ```
 
 ## LaserScanSectorFilter
 Removes laser scan points within a sector. This would be equivalent to using both LaserScanAngularBoundsFilter and LaserScanRangeFilter together.
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: scan_filter
   type: laser_filters/LaserScanSectorFilter
@@ -332,19 +332,19 @@ Removes laser scan points within a sector. This would be equivalent to using bot
 ## InterpolationFilter
 For any invalid scan range outside of the minimum and maximum scan range, the interpolation comes up with a range value which is an interpolation between the surrounding valid values (within the accepted scan range).
 
-  ### Use Cases
-The interpolation filter is sort of a double-edged sword, it could reconstruct scan messages from invalid points. However, it can also introduce unnecessary noise into the scan messages especially if the difference between the surrounding valid range values are relatively large, which is likely for nearby obstacles against other obstacles further away. The navigation stack could mistake this interpolated point as an obstacle when there is none.
+### Use Cases
+The interpolation filter is sort of a double-edged sword, it could reconstruct scan messages from invalid points. However, it can also introduce erroneous laser points into the scan messages especially if the difference between the surrounding valid range values are relatively large, which is likely for nearby obstacles against other obstacles further away. The navigation stack could mistake this interpolated point as an obstacle when there is none.
 I would imagine that it's best used in an environment small enough to be within the maximum range of the lidar.
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: interpolation
   type: laser_filters/InterpolationFilter
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/interpolation_filter.h#L63-L110)
 ```python 
 FUNCTION Update(scan_in, scan_out)
@@ -403,10 +403,10 @@ ENDFUNCTION
 ## LaserScanFootprintFilter
 Removes laser scan points within a prescribed radius of the robot footprint.
 
-  ### Use Cases
+### Use Cases
 The range filter could be used to "remove" laser scan points within the physical robot footprint, especially if the lidar scan points intersect with the robot chassis.
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: footprint_filter
   type: laser_filters/LaserScanFootprintFilter
@@ -414,10 +414,10 @@ The range filter could be used to "remove" laser scan points within the physical
     inscribed_radius: 0.75
 ```
 
-  ### Pseudocode
+### Pseudocode
 The footprint filter is one of those filters that first convert the laser scans to (x, y) cartesian space before "removing" points.
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/footprint_filter.h#L75-L110)
 ```python 
 FUNCTION Update(scan_in, scan_out)
@@ -450,7 +450,7 @@ FUNCTION Update(scan_in, scan_out)
 ENDFUNCTION
 ```
 
-  #### *indexChannel Function*
+#### *indexChannel Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/footprint_filter.h#L112-L123)
 ```python
 FUNCTION indexChannel(scan_cloud)
@@ -468,7 +468,7 @@ FUNCTION indexChannel(scan_cloud)
 ENDFUNCTION
 ```
 
-  #### *inFootprint Function*
+#### *inFootprint Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/footprint_filter.h#L125-L129)
 ```python
 FUNCTION inFootprint(scan_pt)
@@ -492,10 +492,10 @@ ENDFUNCTION
 This filter removes points in a sensor_msgs/LaserScan inside of a 3 dimensional cartesian box.
 These points are "removed" by setting the corresponding range value to NaN which is assumed to be an error case.
 
-  ### Use Cases
-The range filter could be used to "remove" laser scan points within the physical robot footprint, especially if the lidar scan points intersect with the robot chassis.
+### Use Cases
+The range filter could be used to "remove" laser scan points within the physical robot footprint, especially if the lidar scan points intersect with the robot chassis. It can also be used to only include laser points within a cartesian box, which could be useful for docking, when there is a need to isolate the laser scan points on the docking station of Iterative Closest Point (ICP) scan matching.
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: box_filter
   type: laser_filters/LaserScanBoxFilter
@@ -510,9 +510,9 @@ The range filter could be used to "remove" laser scan points within the physical
     invert: false #sets either the points inside or outside the defined box to be NaN
 ``` 
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function* : Updates each laser scan message
+#### *Update Function* : Updates each laser scan message
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/src/box_filter.cpp#L105-L199)
   
 ```python 
@@ -591,7 +591,7 @@ FUNCTION Update(scan_in, scan_out)
 ENDFUNCTION
 ```
 
-  #### *inBox Function* : Checks if scan point is within 3D cartesian box
+#### *inBox Function* : Checks if scan point is within 3D cartesian box
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/src/box_filter.cpp#L201-L206)
 
 ```python
@@ -614,11 +614,10 @@ ENDFUNCTION
 "Removes" laser scan points within a user-defined polygon using a method similar to LaserScanBoxFilter.
 The example parameters below define a five sided polygon.
 
+### Use Cases
+The range filter could be used to "remove" laser scan points within the physical robot footprint (especially if your robot footprint is not circular, in which case you would use the LaserScanFootprintFilter).
 
-  ### Use Cases
-The range filter could be used to "remove" laser scan points within the physical robot footprint, especially if the lidar scan points intersect with the robot chassis.
-
-  ### Parameters
+### Parameters
 ```yaml
 - name: polygon_filter
   type: laser_filters/LaserScanPolygonFilter
@@ -628,9 +627,9 @@ The range filter could be used to "remove" laser scan points within the physical
     invert: false #sets either the points inside or outside the defined polygon to be NaN
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/src/polygon_filter.cpp#L483-L547)
 
 ```python 
@@ -714,7 +713,7 @@ FUNCTION Update(scan_in, scan_out)
 ENDFUNCTION
 ```
 
-  #### *inPolygon Function* : Checks if scan point is within 2D polygon
+#### *inPolygon Function* : Checks if scan point is within 2D polygon
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/src/polygon_filter.cpp#L295-L307)
 
 This function uses ray casting to check if the point is within the polygon. Refer to the [last C code block](https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html) (by Randolph Franklin) in Solution 1
@@ -753,7 +752,7 @@ ENDFUNCTION
 ## LaserScanMaskFilter
 Removes scan points by specifying their indexes.
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: mask_filter
   type: laser_filters/LaserScanMaskFilter
@@ -773,9 +772,9 @@ Removes scan points by specifying their indexes.
       - ...
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/scan_mask_filter.h#L105-L125)
 ```
 FUNCTION Update(scan)
@@ -796,7 +795,7 @@ Background: “Laser scans sometimes hit objects at a grazing angle, resulting i
 
 https://answers.ros.org/question/239454/whats-the-rational-behind-laser_filtersscanshadowsfilter/
 
-  ### Parameters
+### Parameters
 
 Example config parameters taken from [here](https://github.com/uos/calvin_robot/blob/93b506a10c6fb8000517ebd09c9f7041e2ab9cbf/calvin_bringup/config/calvin_lms200_self_filter.yaml)
 ```yaml
@@ -809,9 +808,9 @@ Example config parameters taken from [here](https://github.com/uos/calvin_robot/
     window: 1         # Window of measurements to check 
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function* 
+#### *Update Function* 
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/src/scan_shadows_filter.cpp#L129-L172)
 ```python
 FUNCTION Update(scan)
@@ -855,7 +854,7 @@ FUNCTION Update(scan)
 ENDFUNCTION
 ```
 
-  #### *isShadow Function*
+#### *isShadow Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/src/scan_shadow_detector.cpp#L64-L81)
 ```python
 # range_a and range_b are the absolute scan distances of P1 and P2 respectively
@@ -884,7 +883,7 @@ FUNCTION isShadow(range_a, range_b, sin_alpha, cos_alpha)
 ENDFUNCTION
 ```
 
-  #### Visual Explaination
+#### Visual Explaination
 
   We would like to obtain the angle THETA, which is formed by the intersection of scan point A to B and the lidar to scan point A. The angle THETA provides us with information about how relatively far apart are the 2 objects (A and B) seen by the lidar. The calculations to get there is shown below:
 
@@ -909,7 +908,7 @@ The minimum points and maximum radius must be tuned so that we only obtain blobs
 
 __Figure X: [Scan Blob Visualization](https://github.com/ros-perception/laser_filters/pull/80) __
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: blob_filter
   type: laser_filters/ScanBlobFilter
@@ -918,9 +917,9 @@ __Figure X: [Scan Blob Visualization](https://github.com/ros-perception/laser_fi
     min_points: 4 # min scan points to be considered as blob object
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/scan_blob_filter.h#L93-L151)
 
 ```python 
@@ -1012,7 +1011,7 @@ ENDFUNCTION
 This filter removes speckle points in a laser scan by comparing neighboring points. 
 The term speckle refers to a random granular pattern which can be observed e.g. when a highly coherent light beam (e.g. from a laser) is diffusely reflected at a surface with a complicated (rough) structure, such as a piece of paper, white paint, a display screen, or a metallic surface.
 
-  ### Parameters
+### Parameters
 ```yaml
 - name: speckle_filter
   type: laser_filters/LaserScanSpeckleFilter
@@ -1034,9 +1033,9 @@ The term speckle refers to a random granular pattern which can be observed e.g. 
     filter_window: 2
 ```
 
-  ### Pseudocode
+### Pseudocode
 
-  #### *Update Function*
+#### *Update Function*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/src/speckle_filter.cpp#L74-L123)
 
 ```python 
@@ -1085,7 +1084,7 @@ FUNCTION Update(scan_in, scan_out)
 end FUNCTION
 ```
 
-  #### *checkWindowValid Function (Distance)*
+#### *checkWindowValid Function (Distance)*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/speckle_filter.h#L82-L147)
 
 ```python
@@ -1127,7 +1126,7 @@ FUNCTION checkWindowsValid(scan, idx, window, max_distance)
 end FUNCTION
 ``` 
 
-  #### *checkWindowValid Function (Radius outlier)*
+#### *checkWindowValid Function (Radius outlier)*
   [Source Code](https://github.com/ros-perception/laser_filters/blob/c25f2f738b33f322ffb3bb52f2dc01d74688b233/include/laser_filters/speckle_filter.h#L60-L77)
 
 ```python
