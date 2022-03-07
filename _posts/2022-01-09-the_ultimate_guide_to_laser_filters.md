@@ -54,10 +54,12 @@ This article is still a work in progress, come back at the end of March 2022 to 
       - [*Update Function*](#update-function-5)
       - [*inPolygon Function* : Checks if scan point is within 2D polygon](#inpolygon-function--checks-if-scan-point-is-within-2d-polygon)
   - [LaserScanMaskFilter](#laserscanmaskfilter)
+    - [Use Cases](#use-cases-7)
     - [Parameters](#parameters-9)
     - [Pseudocode](#pseudocode-7)
       - [*Update Function*](#update-function-6)
   - [ScanShadowsFilter](#scanshadowsfilter)
+    - [Use Case](#use-case)
     - [Parameters](#parameters-10)
     - [Pseudocode](#pseudocode-8)
       - [*Update Function*](#update-function-7)
@@ -102,6 +104,7 @@ Take note that setting **filter_override_intensity** to true will assign all "re
 
 ### Use Cases
 The intensity filter could be used to extract laser scan points within a range of intensities especially for applications in robot docking, or even SLAM. Some docking stations possess reflective markers which the lidar will perceive as high intensity scan points, which when extracted and processed could provide an indication of the angular and linear offset of the robot relative to the docking station.
+
 
 
 ### Parameters
@@ -158,6 +161,8 @@ This filter removes all measurements from the sensor_msgs/LaserScan which are gr
 ### Use Cases
 The range filter could be used to "remove" laser scan points that are below or beyond the usable lidar range (usually defined in the technical datasheet of the lidar). This is important to prevent erroneous readings from being used in the marking/clearing of obstacles from the costmap of the navigation stack.
 
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/laserScanRangeFilter.png" alt="laserScanRangeFilter.png" width="300"/>
+
 ### Parameters
 ```yaml
 - name: range_filter
@@ -205,6 +210,8 @@ Removes points in a [sensor_msgs/LaserScan](http://docs.ros.org/en/api/sensor_ms
 
 ### Use Cases
 The angular bounds filter could be used to remove scan points that might be intersecting with the physical robot base, which are mistaken as obstacles by the navigation stack.
+
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/LaserScanAngularBoundsFilter.png" alt="LaserScanAngularBoundsFilter.png" width="300"/>
 
 ### Parameters
 ```yaml
@@ -304,6 +311,8 @@ ENDFUNCTION
 ## LaserScanAngularBoundsFilterInPlace
 Works in a similar way to LaserScanAngularBoundsFilter. It removes points in a sensor_msgs/LaserScan INSIDE certain angular bounds by changing the minimum and maximum angle. 
 
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/LaserScanAngularBoundsFilterInPlace.png" alt="LaserScanAngularBoundsFilterInPlace.png" width="300"/>
+
 ### Parameters
 ```yaml
 - name: angular_bounds
@@ -315,6 +324,8 @@ Works in a similar way to LaserScanAngularBoundsFilter. It removes points in a s
 
 ## LaserScanSectorFilter
 Removes laser scan points within a sector. This would be equivalent to using both LaserScanAngularBoundsFilter and LaserScanRangeFilter together.
+
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/LaserScanSectorFilter.png" alt="LaserScanSectorFilter.png" width="300"/>
 
 ### Parameters
 ```yaml
@@ -406,6 +417,8 @@ Removes laser scan points within a prescribed radius of the robot footprint.
 ### Use Cases
 The range filter could be used to "remove" laser scan points within the physical robot footprint, especially if the lidar scan points intersect with the robot chassis.
 
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/LaserScanFootprintFilter.png" alt="LaserScanFootprintFilter.png" width="300"/>
+
 ### Parameters
 ```yaml
 - name: footprint_filter
@@ -494,6 +507,10 @@ These points are "removed" by setting the corresponding range value to NaN which
 
 ### Use Cases
 The range filter could be used to "remove" laser scan points within the physical robot footprint, especially if the lidar scan points intersect with the robot chassis. It can also be used to only include laser points within a cartesian box, which could be useful for docking, when there is a need to isolate the laser scan points on the docking station of Iterative Closest Point (ICP) scan matching.
+
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/LaserScanBoxFilter.png" alt="LaserScanBoxFilter.png" width="300"/>
+
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/LaserScanBoxFilter_inverted.png" alt="LaserScanBoxFilter_inverted.png" width="300"/>
 
 ### Parameters
 ```yaml
@@ -616,6 +633,10 @@ The example parameters below define a five sided polygon.
 
 ### Use Cases
 The range filter could be used to "remove" laser scan points within the physical robot footprint (especially if your robot footprint is not circular, in which case you would use the LaserScanFootprintFilter).
+
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/LaserScanPolygonFilter.png" alt="LaserScanPolygonFilter.png" width="300"/>
+
+<img src="/public/assets/2022-01-09-the_ultimate_guide_to_laser_filters/LaserScanPolygonFilter_inverted.png" alt="LaserScanPolygonFilter_inverted.png" width="300"/>
 
 ### Parameters
 ```yaml
@@ -752,6 +773,10 @@ ENDFUNCTION
 ## LaserScanMaskFilter
 Removes scan points by specifying their indexes.
 
+### Use Cases
+
+
+
 ### Parameters
 ```yaml
 - name: mask_filter
@@ -794,6 +819,8 @@ It would be nice to be able to state a range, rather than having to explicitly w
 Background: “Laser scans sometimes hit objects at a grazing angle, resulting in “split pixels” or “shadows”. These laser hits show up in the scan as single points in the middle of space, part-way between the object they grazed and a background object. For many tasks such as object model fitting, these points are simply noise and should be removed using the scan shadows filter. [2]
 
 https://answers.ros.org/question/239454/whats-the-rational-behind-laser_filtersscanshadowsfilter/
+
+### Use Case
 
 ### Parameters
 
