@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[WIP] The Ultimate ROS1 Guide to Laser Filters"
+title: "The Ultimate ROS1 Guide to Laser Filters"
 ---
 
 This article is still a work in progress, come back at the end of March 2022 to check it out :)
