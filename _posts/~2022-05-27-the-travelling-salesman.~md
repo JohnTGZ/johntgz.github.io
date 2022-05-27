@@ -1,0 +1,26 @@
+---
+layout: post
+title: "The Travelling Salesman - Dynamic Programming and Branch-and-bound method"
+---
+
+When it comes to TSP, I see rather unsatisfactory explainations out there, or rather, no easy ones for the lazy mind. Today I shall attempt to illumination this classic problem with visual representations and diagrams. There are [multiple approaches to TSP](https://en.wikipedia.org/wiki/Travelling_salesman_problem), with the most commonly discussed being [Dynamic Programming](https://www.youtube.com/watch?v=aPQY__2H3tE&ab_channel=Reducible) and [Branch and Bound](https://en.wikipedia.org/wiki/Branch_and_bound), which will be the focus today.
+
+# Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Brute Force?](#brute-force)
+- [Dynamic Programming!](#dynamic-programming)
+- [Branch and Bound](#branch-and-bound)
+
+# Brute Force?
+
+
+# Dynamic Programming
+
+# Branch and Bound
+
+# Conclusion
+
+# Notes
+
+# References
+[1] []()
