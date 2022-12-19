@@ -9,9 +9,13 @@ Lee Iacocca once remarked that “We are continually faced by great opportunitie
 
 ## Career
 
+### Open Robotics
+#### Robotics Software Engineer (2022 - 2022)
+- As part of the world’s leading open source robotics organisation, I worked on architecting a novel flexible manufacturing workcell systems and maintaining/deploying RMF (Robotics Middleware Framework).
+
 ### Globotix
-#### Robotics Software Engineer (2021 - Present)
-- Currently building the software stack for the next generation of cleaning robots.
+#### Robotics Software Engineer (2021 - 2022)
+- As team lead, I planned the system architecture, organized the team, managed allocation of tasks and their priority, and ensured that the requirements were met. I helped to encourage proper documentation, writing of software specifications and set up a knowledge management system for the company. Some components that I actively developed are state machines to manage the transition between different robot states, coverage planners, docking, fleet management and diagnostics. Additionally, I have also worked on the web stack, which relies on NodeJS to host an interface for remote management of the robot.
 
 ### Movel AI
 #### Robotics Software Engineer (2020 - 2021)
